@@ -401,6 +401,18 @@ body.customer-menu-only #cartBar {
 <style id="home-slide-click-hint">
   #homeTop15SlideImage:active{transform:scale(.997)}
 </style>
+
+<style id="rmp-guest-no-login-v21-style">
+#mainAuthBtn,#sidebarProfile,#loginModal,#sidebar a[onclick*="showOrderHistory"]{display:none!important}
+#checkoutModal h3{font-size:1.45rem!important}
+#checkoutModal button[onclick="submitOrder()"]{font-size:1.05rem!important;font-weight:900!important;padding-top:.9rem!important;padding-bottom:.9rem!important}
+@media(max-width:640px){
+  #checkoutModal{padding:.5rem!important;align-items:flex-end!important}
+  #checkoutModal>div{border-radius:1.25rem 1.25rem 0 0!important;padding:1rem!important;max-height:94vh!important}
+  #checkoutItemsList{max-height:10rem!important}
+}
+</style>
+
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col justify-between font-sans">
 
@@ -615,7 +627,7 @@ body.customer-menu-only #cartBar {
 
     <!-- চেকআউট মোডাল -->
     <div id="checkoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[94vh] overflow-y-auto">
             <button onclick="closeCheckoutModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black font-bold text-xl">✕</button>
             <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="orderSummary">Order Summary & Checkout</h3>
             
@@ -630,14 +642,37 @@ body.customer-menu-only #cartBar {
                 <div class="flex justify-between"><span data-i18n="sstTax">SST Tax (6%):</span> <span id="modalTax">RM0.00</span></div>
                 <div class="flex justify-between font-bold text-lg text-black border-t pt-1"><span data-i18n="total">Total:</span> <span id="modalTotal">RM0.00</span></div>
             </div>
-            <div class="space-y-3 mb-6">
+            <div id="checkoutTableVerify" class="hidden mb-5 rounded-2xl border-2 border-blue-300 bg-blue-50 p-4">
+                <div class="text-xl md:text-2xl font-black text-blue-950">🍽️ VERIFY YOUR TABLE NUMBER</div>
+                <p class="mt-1 mb-4 text-sm md:text-base font-semibold text-blue-800">Please confirm your table. You can change it here before placing the order.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-black text-gray-800 mb-1">SECTION</label>
+                        <select id="checkoutSectionSelect" onchange="rmpCheckoutSectionChanged()" class="w-full border-2 border-blue-300 p-4 rounded-xl text-lg font-black bg-white">
+                            <option value="indoor">Indoor (A)</option>
+                            <option value="outdoor">Outdoor (B)</option>
+                            <option value="first_floor">First Floor (C)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black text-gray-800 mb-1">TABLE NUMBER</label>
+                        <select id="checkoutTableSelect" onchange="rmpCheckoutTableChanged()" class="w-full border-2 border-blue-300 p-4 rounded-xl text-xl font-black bg-white"></select>
+                    </div>
+                </div>
+                <label class="mt-4 flex items-center gap-3 rounded-xl bg-white border border-blue-200 p-3 cursor-pointer">
+                    <input id="checkoutTableConfirmed" type="checkbox" class="w-6 h-6 accent-blue-600">
+                    <span class="text-base md:text-lg font-black text-gray-900">I confirm this is my table</span>
+                </label>
+            </div>
+
+            <div class="space-y-4 mb-6">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600" data-i18n="customerName">Customer Name</label>
-                    <input type="text" id="checkoutName" class="w-full border p-2 rounded-lg text-sm bg-gray-50" readonly>
+                    <label class="block text-base font-black text-gray-800 mb-1" data-i18n="customerName">Customer Name</label>
+                    <input type="text" id="checkoutName" autocomplete="name" placeholder="Enter your name" class="w-full border-2 border-gray-300 p-4 rounded-xl text-lg font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600" data-i18n="phoneNumber">Phone Number</label>
-                    <input type="text" id="checkoutPhone" class="w-full border p-2 rounded-lg text-sm bg-gray-50" readonly>
+                    <label class="block text-base font-black text-gray-800 mb-1" data-i18n="phoneNumber">Phone Number</label>
+                    <input type="tel" id="checkoutPhone" autocomplete="tel" inputmode="tel" placeholder="Enter your phone number" class="w-full border-2 border-gray-300 p-4 rounded-xl text-lg font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none">
                 </div>
             </div>
             <div class="flex gap-3">
@@ -721,8 +756,8 @@ body.customer-menu-only #cartBar {
 
     <script>
 
-/* RMP POS public customer API fallback for the currently active Cloudflare tunnel.
-   A QR URL with ?api=... always overrides this value and is saved locally. */
+/* Permanent public Customer API via Tailscale Funnel.
+   A QR URL with ?api=... can still override this value. */
 window.RMP_CUSTOMER_API_URL = window.RMP_CUSTOMER_API_URL || 'https://desktop-k7nplqn.tail4874ea.ts.net';
 
 /* RMP POS Customer Web -> restricted Customer API -> WAMP/MySQL. No cloud database is used by this page. */
@@ -5430,6 +5465,229 @@ function getMalaysiaSqlTimestamp(){
   window.addEventListener('DOMContentLoaded',()=>{
     if(loggedInCustomer&&!RMPWampCustomer.getAuthToken()){loggedInCustomer=null;localStorage.removeItem('hameeds_customer');try{updateLoginUI();}catch(e){}}
     setTimeout(verifyAndOpenQrTable,180);
+  });
+})();
+</script>
+
+
+<script id="rmp-guest-direct-qr-v21-final">
+(function(){
+  'use strict';
+  const GUEST_INFO_KEY='rmp_guest_checkout_v1';
+  const ORDER_CONTEXT_KEY='rmp_guest_order_context_v1';
+
+  function readJson(key,fallback){try{const x=JSON.parse(localStorage.getItem(key)||'null');return x??fallback;}catch{return fallback;}}
+  function saveGuestInfo(name,phone){localStorage.setItem(GUEST_INFO_KEY,JSON.stringify({name,phone}));}
+  function sectionForTable(table){const p=String(table||'').trim().toUpperCase().charAt(0);return p==='B'?'outdoor':p==='C'?'first_floor':'indoor';}
+  function prefixForSection(section){return section==='outdoor'?'B':section==='first_floor'?'C':'A';}
+
+  // Customer accounts are intentionally not used on this page.
+  try{loggedInCustomer=null;}catch(e){}
+  try{localStorage.removeItem('hameeds_customer');RMPWampCustomer.setAuthToken('');}catch(e){}
+  window.updateLoginUI=function(){
+    document.getElementById('mainAuthBtn')?.classList.add('hidden');
+    document.getElementById('sidebarProfile')?.classList.add('hidden');
+  };
+  window.handleAuthClick=function(){};
+  window.openLoginModal=function(){};
+  window.closeLoginModal=function(){};
+  window.registerCustomer=function(){};
+  window.loginCustomer=function(){};
+  window.logoutCustomer=function(){};
+
+  // Checkout never requires a login. Cart already persists in hameeds_cart/localStorage.
+  window.proceedToCheckout=function(){
+    if(!Array.isArray(cart)||!cart.length){alert('Your cart is empty.');return;}
+    closeCartModal();
+    window.openCheckoutModal();
+  };
+
+  function fillCheckoutTables(section,selected){
+    const sel=document.getElementById('checkoutTableSelect');
+    if(!sel)return;
+    const prefix=prefixForSection(section);
+    sel.innerHTML='';
+    for(let i=1;i<=30;i++){
+      const table=prefix+i,op=document.createElement('option');
+      op.value=table;op.textContent='Table '+table;sel.appendChild(op);
+    }
+    if(selected&&String(selected).startsWith(prefix))sel.value=String(selected).toUpperCase();
+  }
+
+  function checkoutSummary(){
+    if(currentOrderType!=='dine_in')return;
+    const section=document.getElementById('checkoutSectionSelect')?.value||'indoor';
+    const table=document.getElementById('checkoutTableSelect')?.value||'';
+    const loc=document.getElementById('summaryTableLocation');
+    if(loc)loc.innerText=`${section.toUpperCase()} - Table ${table}`;
+  }
+
+  window.rmpCheckoutSectionChanged=function(){
+    const section=document.getElementById('checkoutSectionSelect')?.value||'indoor';
+    fillCheckoutTables(section,'');
+    const c=document.getElementById('checkoutTableConfirmed');if(c)c.checked=false;
+    checkoutSummary();saveOrderContextFromCheckout();
+  };
+  window.rmpCheckoutTableChanged=function(){
+    const c=document.getElementById('checkoutTableConfirmed');if(c)c.checked=false;
+    checkoutSummary();saveOrderContextFromCheckout();
+  };
+
+  function saveOrderContextFromCheckout(){
+    if(currentOrderType!=='dine_in')return;
+    const section=document.getElementById('checkoutSectionSelect')?.value||'indoor';
+    const table=document.getElementById('checkoutTableSelect')?.value||'';
+    localStorage.setItem(ORDER_CONTEXT_KEY,JSON.stringify({type:'dine_in',section,table}));
+  }
+
+  const previousOpenCheckout=window.openCheckoutModal;
+  window.openCheckoutModal=function(){
+    // Reuse the existing item/totals renderer, then make the guest checkout editable.
+    if(typeof previousOpenCheckout==='function')previousOpenCheckout.apply(this,arguments);
+    const guest=readJson(GUEST_INFO_KEY,{});
+    const name=document.getElementById('checkoutName'),phone=document.getElementById('checkoutPhone');
+    if(name&&!name.value)name.value=guest.name||'';
+    if(phone&&!phone.value)phone.value=guest.phone||'';
+    if(name)name.readOnly=false;if(phone)phone.readOnly=false;
+
+    const verify=document.getElementById('checkoutTableVerify');
+    if(currentOrderType==='dine_in'){
+      verify?.classList.remove('hidden');
+      const ctx=readJson(ORDER_CONTEXT_KEY,{});
+      let table='';
+      if(window.rmpVerifiedQrTable?.table_id)table=String(window.rmpVerifiedQrTable.table_id).toUpperCase();
+      else table=String(ctx.table||document.getElementById('activeTableSelect')?.value||'A1').toUpperCase();
+      const section=sectionForTable(table);
+      const s=document.getElementById('checkoutSectionSelect');if(s)s.value=section;
+      fillCheckoutTables(section,table);
+      const confirmed=document.getElementById('checkoutTableConfirmed');if(confirmed)confirmed.checked=false;
+      checkoutSummary();
+    }else{
+      verify?.classList.add('hidden');
+      const confirmed=document.getElementById('checkoutTableConfirmed');if(confirmed)confirmed.checked=false;
+    }
+    setTimeout(()=>name?.focus(),80);
+  };
+
+  function orderItemsPayload(){
+    return (cart||[]).map(i=>({
+      menu_item_id:Number(i.id),quantity:Number(i.quantity||1),
+      modifiers:(i.modifierDetails&&i.modifierDetails.length)
+        ?i.modifierDetails.map(m=>({text:m.text,price:Number(m.price||0)}))
+        :(i.modifiers||[]).map(text=>({text,price:0})),
+      item_note:i.modifierNote||''
+    }));
+  }
+
+  async function ensureOrderingEnabled(){
+    const x=await RMPWampCustomer.request('/settings');
+    window.customerOrderingEnabled=x.customerOrderingEnabled!==false;
+    if(!window.customerOrderingEnabled)throw new Error('Ordering is currently unavailable. Menu browsing is still available.');
+  }
+
+  async function getManualTableToken(tableId){
+    const x=await RMPWampCustomer.request('/table/manual-select',{method:'POST',body:{table_id:tableId}});
+    if(!x?.manual_token)throw new Error('Could not verify the selected table.');
+    return x.manual_token;
+  }
+
+  window.submitOrder=async function(){
+    const btn=document.querySelector('#checkoutModal button[onclick="submitOrder()"]');
+    if(btn?.dataset.submitting==='1')return;
+    if(btn){btn.dataset.submitting='1';btn.disabled=true;btn.classList.add('opacity-60','cursor-not-allowed');}
+    try{
+      await ensureOrderingEnabled();
+      if(!Array.isArray(cart)||!cart.length)throw new Error('Your cart is empty.');
+      const name=String(document.getElementById('checkoutName')?.value||'').trim();
+      const phone=String(document.getElementById('checkoutPhone')?.value||'').trim();
+      if(name.length<2)throw new Error('Please enter your name.');
+      if(phone.replace(/\D/g,'').length<7)throw new Error('Please enter a valid phone number.');
+      saveGuestInfo(name,phone);
+
+      if(appendToExistingOrderId){
+        const id=Number(appendToExistingOrderId),tok=RMPWampCustomer.getOrderToken(id),headers={};
+        if(tok)headers['X-Order-Token']=tok;
+        await RMPWampCustomer.request('/orders/'+id+'/add-more',{method:'POST',headers,body:{customer_name:name,customer_phone:phone,items:orderItemsPayload()}});
+        cart=[];saveCart();updateCartBar();closeCheckoutModal();resetAppendOrderMode();
+        alert(`New items sent for approval for Order #${id}.`);
+        return;
+      }
+
+      let tableId='',tableKey='',manualToken='';
+      if(currentOrderType==='dine_in'){
+        const confirmed=document.getElementById('checkoutTableConfirmed');
+        if(!confirmed?.checked)throw new Error('Please confirm your table number before placing the order.');
+        tableId=String(document.getElementById('checkoutTableSelect')?.value||'').trim().toUpperCase();
+        if(!/^[ABC](?:[1-9]|[12][0-9]|30)$/.test(tableId))throw new Error('Please select a valid table number.');
+
+        // If the checkout still uses the scanned QR table, keep the secure QR key.
+        const p=new URLSearchParams(location.search),urlKey=String(p.get('key')||p.get('token')||'').trim();
+        const verifiedTable=String(window.rmpVerifiedQrTable?.table_id||'').toUpperCase();
+        if(urlKey&&verifiedTable===tableId){
+          tableKey=urlKey;
+        }else{
+          // Direct website / changed table: ask the POS server for a short-lived manual-selection token.
+          manualToken=await getManualTableToken(tableId);
+        }
+        const section=sectionForTable(tableId);
+        localStorage.setItem(ORDER_CONTEXT_KEY,JSON.stringify({type:'dine_in',section,table:tableId}));
+      }else{
+        localStorage.setItem(ORDER_CONTEXT_KEY,JSON.stringify({type:'takeaway'}));
+      }
+
+      const x=await RMPWampCustomer.request('/orders',{method:'POST',body:{
+        order_type:currentOrderType,table_id:tableId,table_key:tableKey,manual_table_token:manualToken,
+        customer_name:name,customer_phone:phone,items:orderItemsPayload()
+      }});
+      const order=x.order||{},tok=x.access_token||order.order_access_token;
+      if(order.id&&tok)RMPWampCustomer.setOrderToken(order.id,tok);
+      const recent=readJson('rmp_recent_customer_orders',[]);recent.unshift({id:order.id,token:tok,table_id:order.table_id,created_at:new Date().toISOString()});
+      localStorage.setItem('rmp_recent_customer_orders',JSON.stringify(recent.slice(0,30)));
+      cart=[];saveCart();updateCartBar();closeCheckoutModal();localStorage.removeItem(ORDER_CONTEXT_KEY);
+      alert(`Order #${order.id} placed successfully for ${order.table_id}. Waiting for cashier confirmation.`);
+      showHome();
+    }catch(e){alert('Order failed: '+(e.message||e));}
+    finally{if(btn){btn.dataset.submitting='0';btn.disabled=false;btn.classList.remove('opacity-60','cursor-not-allowed');}}
+  };
+
+  // Remember direct Dine-In/Takeaway context so refresh does not lose the active cart flow.
+  const previousStartOrder=window.startOrder;
+  if(typeof previousStartOrder==='function')window.startOrder=function(type){
+    const out=previousStartOrder.apply(this,arguments);
+    setTimeout(()=>{
+      if(type==='dine_in'){
+        const section=document.getElementById('activeSectionSelect')?.value||'indoor';
+        const table=document.getElementById('activeTableSelect')?.value||prefixForSection(section)+'1';
+        localStorage.setItem(ORDER_CONTEXT_KEY,JSON.stringify({type:'dine_in',section,table}));
+      }else localStorage.setItem(ORDER_CONTEXT_KEY,JSON.stringify({type:'takeaway'}));
+    },0);
+    return out;
+  };
+
+  window.addEventListener('DOMContentLoaded',()=>{
+    try{loggedInCustomer=null;localStorage.removeItem('hameeds_customer');RMPWampCustomer.setAuthToken('');}catch(e){}
+    updateLoginUI();
+    const historyLink=document.querySelector('#sidebar a[onclick*="showOrderHistory"]');historyLink?.closest('li')?.classList.add('hidden');
+    const title=document.querySelector('#sidebar h2');if(title)title.textContent='Menu';
+
+    const section=document.getElementById('activeSectionSelect'),table=document.getElementById('activeTableSelect');
+    section?.addEventListener('change',()=>{
+      setTimeout(()=>localStorage.setItem(ORDER_CONTEXT_KEY,JSON.stringify({type:'dine_in',section:section.value,table:table?.value||''})),0);
+    });
+    table?.addEventListener('change',()=>localStorage.setItem(ORDER_CONTEXT_KEY,JSON.stringify({type:'dine_in',section:section?.value||'indoor',table:table.value})));
+
+    // For direct URL visits, resume a cart after refresh. QR visits are handled by QR verification below.
+    setTimeout(()=>{
+      if(typeof qrTableContext!=='undefined'&&qrTableContext)return;
+      if(!Array.isArray(cart)||!cart.length)return;
+      const ctx=readJson(ORDER_CONTEXT_KEY,null);if(!ctx?.type)return;
+      if(ctx.type==='dine_in'){
+        if(section)section.value=ctx.section||sectionForTable(ctx.table||'A1');
+        updateActiveTableDropdown();if(table&&ctx.table)table.value=ctx.table;
+      }
+      if(document.getElementById('homeView')&&!document.getElementById('homeView').classList.contains('hidden'))window.startOrder(ctx.type);
+      if(ctx.type==='dine_in')setTimeout(()=>{if(section)section.value=ctx.section||sectionForTable(ctx.table||'A1');updateActiveTableDropdown();if(table&&ctx.table)table.value=ctx.table;},80);
+    },420);
   });
 })();
 </script>
