@@ -497,7 +497,7 @@ body.customer-menu-only #cartBar {
                 <li><a href="#" onclick="toggleSidebar(); showOrderHistory();" class="hover:text-blue-600" data-i18n="orderHistory">Order History</a></li>
             </ul>
         </div>
-        <div class="text-xs text-gray-400 text-center">Hameeds Bistro v2.1.1</div>
+        <div class="text-xs text-gray-400 text-center">Hameeds Bistro · RMP POS v2.4</div>
     </div>
     <div id="sidebarOverlay" class="hidden fixed inset-0 z-40" onclick="closeSidebar()"></div>
 
@@ -767,12 +767,16 @@ const RMPWampCustomer=(function(){
   const API_KEY='rmp_customer_api_url';
   function cleanBase(v){return String(v||'').trim().replace(/\/$/,'');}
   function resolveBase(){
-    // Mobile-safe production rule: always use the permanent Tailscale Funnel URL.
-    // Old QR links may still contain a retired ?api=trycloudflare... value; ignore it.
+    const injected=cleanBase(window.RMP_CUSTOMER_API_URL||'');
+    if(/^https?:\/\//i.test(injected)){localStorage.setItem(API_KEY,injected);return injected;}
+    try{
+      const p=new URLSearchParams(location.search);const q=cleanBase(p.get('api'));
+      if(/^https?:\/\//i.test(q)&&!(/\.trycloudflare\.com$/i.test(new URL(q).hostname))){localStorage.setItem(API_KEY,q);return q;}
+    }catch(e){}
+    const saved=cleanBase(localStorage.getItem(API_KEY)||'');
+    if(/^https?:\/\//i.test(saved))return saved;
     if(['127.0.0.1','localhost'].includes(location.hostname))return `http://${location.hostname}:8788`;
-    const fixed=cleanBase(window.RMP_CUSTOMER_API_URL||'https://desktop-k7nplqn.tail4874ea.ts.net');
-    try{localStorage.setItem(API_KEY,fixed);}catch(e){}
-    return fixed;
+    return '';
   }
   function getAuthToken(){return String(localStorage.getItem(AUTH_KEY)||'').trim();}
   function setAuthToken(v){if(v)localStorage.setItem(AUTH_KEY,String(v));else localStorage.removeItem(AUTH_KEY);}
@@ -5358,7 +5362,6 @@ function getMalaysiaSqlTimestamp(){
   }
 
   window.addEventListener('DOMContentLoaded',()=>{
-    try{localStorage.setItem('rmp_customer_api_url','https://desktop-k7nplqn.tail4874ea.ts.net');}catch(e){}
     bindHomeSlideshow();
     setTimeout(ensureHomeMenuLoaded,120);
   });
@@ -5685,6 +5688,106 @@ function getMalaysiaSqlTimestamp(){
       if(document.getElementById('homeView')&&!document.getElementById('homeView').classList.contains('hidden'))window.startOrder(ctx.type);
       if(ctx.type==='dine_in')setTimeout(()=>{if(section)section.value=ctx.section||sectionForTable(ctx.table||'A1');updateActiveTableDropdown();if(table&&ctx.table)table.value=ctx.table;},80);
     },420);
+  });
+})();
+</script>
+
+
+<style id="rmp-guest-history-v240-style">
+#sidebar a[onclick*="showOrderHistory"]{display:block!important}
+#rmpGuestHistoryHomeBtn{width:100%;margin-top:.75rem;min-height:52px;font-size:1rem;font-weight:800}
+#guestHistoryPhoneModal input{font-size:1.15rem;min-height:54px}
+</style>
+<script id="rmp-guest-history-v240-final">
+(function(){
+  'use strict';
+  const GUEST_INFO_KEY='rmp_guest_checkout_v1';
+  const PROFILE_KEY='rmp_guest_customer_profile_v240';
+  function readJson(key,fallback){try{const x=JSON.parse(localStorage.getItem(key)||'null');return x??fallback;}catch{return fallback;}}
+  function saveProfile(customer){if(customer)localStorage.setItem(PROFILE_KEY,JSON.stringify(customer));}
+  function validPhone(v){return String(v||'').replace(/\D/g,'').length>=7;}
+
+  async function ensurePhoneProfile(name,phone){
+    name=String(name||'').trim();phone=String(phone||'').trim();
+    if(!validPhone(phone))throw new Error('Please enter a valid phone number.');
+    const x=await RMPWampCustomer.request('/customer/guest-profile',{method:'POST',body:{full_name:name,phone}});
+    if(!x?.customer||!x?.token)throw new Error('Could not create or find the customer profile.');
+    RMPWampCustomer.setAuthToken(x.token);
+    try{loggedInCustomer=x.customer;}catch(e){}
+    localStorage.setItem('hameeds_customer',JSON.stringify(x.customer));
+    localStorage.setItem(GUEST_INFO_KEY,JSON.stringify({name:x.customer.full_name||name,phone:x.customer.phone||phone}));
+    saveProfile(x.customer);
+    return x.customer;
+  }
+
+  async function restorePhoneProfile(){
+    const guest=readJson(GUEST_INFO_KEY,{});
+    if(!validPhone(guest.phone))return null;
+    try{return await ensurePhoneProfile(guest.name||'',guest.phone);}catch(e){console.warn('Guest profile restore:',e);return null;}
+  }
+
+  function makeHistoryPhoneModal(){
+    if(document.getElementById('guestHistoryPhoneModal'))return;
+    const wrap=document.createElement('div');
+    wrap.id='guestHistoryPhoneModal';wrap.className='hidden fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4';
+    wrap.innerHTML=`<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
+      <button type="button" id="guestHistoryPhoneClose" class="absolute top-3 right-4 text-2xl font-black text-gray-500">×</button>
+      <div class="text-center mb-5"><div class="text-4xl mb-2">📋</div><h3 class="text-2xl font-black text-gray-900">My Order History</h3><p class="text-sm text-gray-500 mt-1">Enter the same phone number used for your order.</p></div>
+      <label class="block text-base font-black text-gray-800 mb-2">Phone Number</label>
+      <input id="guestHistoryPhoneInput" type="tel" inputmode="tel" autocomplete="tel" class="w-full border-2 border-gray-300 p-4 rounded-xl font-bold outline-none focus:border-blue-600" placeholder="e.g. 0123456789">
+      <button type="button" id="guestHistoryPhoneGo" class="w-full mt-4 bg-blue-700 hover:bg-blue-800 text-white p-4 rounded-xl text-lg font-black">VIEW MY ORDERS</button>
+      <p class="text-[11px] text-gray-400 mt-3 text-center">No password or registration is required.</p>
+    </div>`;
+    document.body.appendChild(wrap);
+    wrap.addEventListener('click',e=>{if(e.target===wrap)wrap.classList.add('hidden');});
+    document.getElementById('guestHistoryPhoneClose').onclick=()=>wrap.classList.add('hidden');
+    document.getElementById('guestHistoryPhoneGo').onclick=async()=>{
+      const btn=document.getElementById('guestHistoryPhoneGo'),input=document.getElementById('guestHistoryPhoneInput');
+      const phone=String(input.value||'').trim(),guest=readJson(GUEST_INFO_KEY,{});
+      if(!validPhone(phone)){alert('Please enter a valid phone number.');input.focus();return;}
+      btn.disabled=true;btn.textContent='LOADING...';
+      try{await ensurePhoneProfile(guest.name||'',phone);wrap.classList.add('hidden');await baseShowOrderHistory();}
+      catch(e){alert('Order history failed: '+(e.message||e));}
+      finally{btn.disabled=false;btn.textContent='VIEW MY ORDERS';}
+    };
+  }
+
+  const baseShowOrderHistory=window.showOrderHistory;
+  window.showOrderHistory=async function(){
+    try{
+      let current=null;try{current=loggedInCustomer;}catch(e){}
+      if(!current||!RMPWampCustomer.getAuthToken())current=await restorePhoneProfile();
+      if(current)return await baseShowOrderHistory();
+    }catch(e){console.warn(e);}
+    makeHistoryPhoneModal();
+    const modal=document.getElementById('guestHistoryPhoneModal'),input=document.getElementById('guestHistoryPhoneInput'),guest=readJson(GUEST_INFO_KEY,{});
+    if(input)input.value=guest.phone||'';
+    modal.classList.remove('hidden');setTimeout(()=>input?.focus(),80);
+  };
+
+  const baseSubmitOrder=window.submitOrder;
+  window.submitOrder=async function(){
+    const btn=document.querySelector('#checkoutModal button[onclick="submitOrder()"]');
+    if(btn?.dataset.profilePreparing==='1')return;
+    const name=String(document.getElementById('checkoutName')?.value||'').trim();
+    const phone=String(document.getElementById('checkoutPhone')?.value||'').trim();
+    if(name.length<2){alert('Please enter your name.');return;}
+    if(!validPhone(phone)){alert('Please enter a valid phone number.');return;}
+    if(btn)btn.dataset.profilePreparing='1';
+    try{await ensurePhoneProfile(name,phone);return await baseSubmitOrder.apply(this,arguments);}
+    catch(e){alert('Customer profile could not be saved: '+(e.message||e));}
+    finally{if(btn)delete btn.dataset.profilePreparing;}
+  };
+
+  window.addEventListener('DOMContentLoaded',()=>{
+    makeHistoryPhoneModal();
+    const link=document.querySelector('#sidebar a[onclick*="showOrderHistory"]');
+    const li=link?.closest('li');if(li)li.classList.remove('hidden');if(link)link.style.display='block';
+    const buttons=document.getElementById('customerOrderingButtons');
+    if(buttons&&!document.getElementById('rmpGuestHistoryHomeBtn')){
+      const b=document.createElement('button');b.id='rmpGuestHistoryHomeBtn';b.type='button';b.className='bg-slate-800 hover:bg-slate-900 text-white px-4 py-4 rounded-xl shadow-lg transition col-span-2';b.innerHTML='📋 My Order History';b.onclick=()=>window.showOrderHistory();buttons.appendChild(b);
+    }
+    setTimeout(async()=>{const c=await restorePhoneProfile();if(c)saveProfile(c);},220);
   });
 })();
 </script>
