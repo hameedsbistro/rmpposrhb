@@ -497,7 +497,7 @@ body.customer-menu-only #cartBar {
                 <li><a href="#" onclick="toggleSidebar(); showOrderHistory();" class="hover:text-blue-600" data-i18n="orderHistory">Order History</a></li>
             </ul>
         </div>
-        <div class="text-xs text-gray-400 text-center">Hameeds Bistro v2.0</div>
+        <div class="text-xs text-gray-400 text-center">Hameeds Bistro v2.1.1</div>
     </div>
     <div id="sidebarOverlay" class="hidden fixed inset-0 z-40" onclick="closeSidebar()"></div>
 
@@ -767,16 +767,12 @@ const RMPWampCustomer=(function(){
   const API_KEY='rmp_customer_api_url';
   function cleanBase(v){return String(v||'').trim().replace(/\/$/,'');}
   function resolveBase(){
-    try{
-      const p=new URLSearchParams(location.search);const q=cleanBase(p.get('api'));
-      if(/^https?:\/\//i.test(q)){localStorage.setItem(API_KEY,q);return q;}
-    }catch(e){}
-    const injected=cleanBase(window.RMP_CUSTOMER_API_URL||'');
-    if(/^https?:\/\//i.test(injected))return injected;
-    const saved=cleanBase(localStorage.getItem(API_KEY)||'');
-    if(/^https?:\/\//i.test(saved))return saved;
+    // Mobile-safe production rule: always use the permanent Tailscale Funnel URL.
+    // Old QR links may still contain a retired ?api=trycloudflare... value; ignore it.
     if(['127.0.0.1','localhost'].includes(location.hostname))return `http://${location.hostname}:8788`;
-    return '';
+    const fixed=cleanBase(window.RMP_CUSTOMER_API_URL||'https://desktop-k7nplqn.tail4874ea.ts.net');
+    try{localStorage.setItem(API_KEY,fixed);}catch(e){}
+    return fixed;
   }
   function getAuthToken(){return String(localStorage.getItem(AUTH_KEY)||'').trim();}
   function setAuthToken(v){if(v)localStorage.setItem(AUTH_KEY,String(v));else localStorage.removeItem(AUTH_KEY);}
@@ -5362,6 +5358,7 @@ function getMalaysiaSqlTimestamp(){
   }
 
   window.addEventListener('DOMContentLoaded',()=>{
+    try{localStorage.setItem('rmp_customer_api_url','https://desktop-k7nplqn.tail4874ea.ts.net');}catch(e){}
     bindHomeSlideshow();
     setTimeout(ensureHomeMenuLoaded,120);
   });
