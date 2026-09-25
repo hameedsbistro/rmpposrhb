@@ -5904,8 +5904,8 @@ window.callWaiterFromExistingQr = async function () {
     }
 
     try {
-        if (!window.RMPWampCustomer ||
-            typeof window.RMPWampCustomer.request !== "function") {
+        if (typeof RMPWampCustomer === "undefined" ||
+            typeof RMPWampCustomer.request !== "function") {
             throw new Error("Customer API is not available.");
         }
 
@@ -5924,7 +5924,7 @@ window.callWaiterFromExistingQr = async function () {
          * The existing RMP API already exposes customer_calls through
          * /api/data. No new QR and no new customer database are required.
          */
-        await window.RMPWampCustomer.request("/api/data", {
+        await RMPWampCustomer.request("/api/data", {
             method: "POST",
             body: {
                 table: "customer_calls",
