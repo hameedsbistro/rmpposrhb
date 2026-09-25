@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Restoran Hameeds Bistro</title>
-<link href="images/logo.png" rel="icon" type="image/png"/>
-<link href="images/logo.png" rel="shortcut icon"/>
-<link href="images/logo.png" rel="apple-touch-icon"/>
-<!-- Tailwind CSS CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restoran Hameeds Bistro</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="shortcut icon" href="images/logo.png">
+    <link rel="apple-touch-icon" href="images/logo.png">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
       html,body{max-width:100%;overflow-x:hidden}
       img,video,canvas,svg{max-width:100%}
       #categoryContainer{-webkit-overflow-scrolling:touch;scrollbar-width:thin}
@@ -187,6 +187,9 @@
     #categoryQuickLang{max-width:70px;padding:0 5px;font-size:10px}
   }
 </style>
+
+
+
 <style id="customer-menu-only-mode-style">
 body.customer-menu-only #menuContainer .menu-card-action,
 body.customer-menu-only #menuContainer .add-cart-btn,
@@ -201,6 +204,7 @@ body.customer-menu-only #cartBar {
     #categoryQuickSearchBtn{width:40px;height:40px;flex-basis:40px;font-size:14px}
   }
 </style>
+
 <style id="global-search-location-style">
   #menuContainer .search-result-located{
     outline:3px solid #2563eb;
@@ -209,6 +213,7 @@ body.customer-menu-only #cartBar {
     transition:outline-color .25s ease,box-shadow .25s ease;
   }
 </style>
+
 <style id="sticky-search-in-place-style">
   #categoryStickySearchPanel{
     transform:translateZ(0);
@@ -227,6 +232,7 @@ body.customer-menu-only #cartBar {
     }
   }
 </style>
+
 <style id="header-and-global-search-style">
   #headerMenuSearch{min-width:180px}
   #headerSearchPanel button,
@@ -248,6 +254,7 @@ body.customer-menu-only #cartBar {
     }
   }
 </style>
+
 <style id="header-search-morph-style">
   #headerSearchExpanded{min-width:0}
   #menuSearchSuggestions{
@@ -258,6 +265,7 @@ body.customer-menu-only #cartBar {
     #headerSearchGoBtn{width:42px;height:42px}
   }
 </style>
+
 <style id="dual-language-original-display-style">
   .menu-item-original,
   .category-original{
@@ -305,6 +313,7 @@ body.customer-menu-only #cartBar {
     }
   }
 </style>
+
 <style id="category-dropdown-auto-width-style">
   #categoryContainer > div:first-child{
     flex:0 0 auto;
@@ -365,6 +374,7 @@ body.customer-menu-only #cartBar {
     }
   }
 </style>
+
 <style id="home-top15-slideshow-style">
   #homeTop15SlideStage{aspect-ratio:16/9;width:100%}
   #homeTop15SlideImage{
@@ -387,9 +397,11 @@ body.customer-menu-only #cartBar {
     #homeTop15SlideName{font-size:1rem!important;line-height:1.3rem!important}
   }
 </style>
+
 <style id="home-slide-click-hint">
   #homeTop15SlideImage:active{transform:scale(.997)}
 </style>
+
 <style id="rmp-guest-no-login-v21-style">
 #mainAuthBtn,#sidebarProfile,#loginModal,#sidebar a[onclick*="showOrderHistory"]{display:none!important}
 #checkoutModal h3{font-size:1.45rem!important}
@@ -400,315 +412,357 @@ body.customer-menu-only #cartBar {
   #checkoutItemsList{max-height:10rem!important}
 }
 </style>
+
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col justify-between font-sans">
-<!-- হেডার সেকশন -->
-<header class="bg-blue-900 text-white p-4 shadow-lg flex justify-between items-center relative">
-<div class="flex items-center gap-3">
-<button class="p-2 bg-blue-800 rounded-lg hover:bg-blue-700 transition" onclick="toggleSidebar()">
-<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</button>
-<img alt="Logo" class="h-12 w-12 rounded-full border-2 border-yellow-400 object-cover cursor-pointer" onclick="showHome()" onerror="this.onerror=null;this.src='images/logo.png'" src="images/logo.png" title="Home"/>
-<div class="cursor-pointer select-none" onclick="showHome()" title="Home">
-<h1 class="text-lg font-bold uppercase tracking-wider">Restoran Hameeds Bistro</h1>
-<p class="text-xs text-yellow-300" data-i18n="subtitle">Dine-In & Takeaway Ordering • RMP POS WAMP</p>
-</div>
-</div>
-<!-- MAIN HEADER SEARCH: button morphs into input, with a small search icon button -->
-<div class="relative hidden md:flex flex-1 max-w-xl mx-6 justify-center" id="headerMenuSearch">
-<div class="w-full flex justify-center" id="headerSearchCollapsed">
-<button class="bg-slate-900/90 hover:bg-slate-950 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow flex items-center gap-2" id="headerSearchButton" type="button">
+
+    <!-- হেডার সেকশন -->
+    <header class="bg-blue-900 text-white p-4 shadow-lg flex justify-between items-center relative">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="p-2 bg-blue-800 rounded-lg hover:bg-blue-700 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <img src="images/logo.png" alt="Logo" onclick="showHome()" title="Home" class="h-12 w-12 rounded-full border-2 border-yellow-400 object-cover cursor-pointer" onerror="this.onerror=null;this.src='images/logo.png'">
+            <div onclick="showHome()" title="Home" class="cursor-pointer select-none">
+                <h1 class="text-lg font-bold uppercase tracking-wider">Restoran Hameeds Bistro</h1>
+                <p class="text-xs text-yellow-300" data-i18n="subtitle">Dine-In & Takeaway Ordering • RMP POS WAMP</p>
+            </div>
+        </div>
+
+        <!-- MAIN HEADER SEARCH: button morphs into input, with a small search icon button -->
+        <div id="headerMenuSearch" class="relative hidden md:flex flex-1 max-w-xl mx-6 justify-center">
+            <div id="headerSearchCollapsed" class="w-full flex justify-center">
+                <button type="button" id="headerSearchButton"
+                    class="bg-slate-900/90 hover:bg-slate-950 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow flex items-center gap-2">
                     🔎 <span data-i18n="searchItem">Search Item</span>
-</button>
-</div>
-<div class="hidden w-full items-center gap-2" id="headerSearchExpanded">
-<input autocomplete="off" class="flex-1 min-w-0 bg-white text-slate-800 border border-slate-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-yellow-400" data-i18n-placeholder="searchItemPlaceholder" id="menuSearchInput" placeholder="Search all menu items or categories..." type="search"/>
-<button aria-label="Search" class="shrink-0 w-11 h-11 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black shadow" id="headerSearchGoBtn" title="Search" type="button">🔍</button>
-</div>
-<div class="hidden absolute top-full mt-2 left-0 right-0 bg-white text-slate-800 border border-slate-200 rounded-2xl shadow-2xl max-h-80 overflow-y-auto z-[10060]" id="menuSearchSuggestions"></div>
-</div>
-<div class="flex items-center gap-2">
-<!-- Header language selector: only translatable UI text changes; brand/footer stay English -->
-<div class="relative">
-<select aria-label="Language" class="appearance-none bg-blue-800 hover:bg-blue-700 text-white border border-blue-700 rounded-lg pl-9 pr-7 py-2 text-sm font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400" id="langSelect" onchange="changeLanguage(this.value)" title="Language">
-<option value="en">English</option>
-<option value="en_us">English (US)</option>
-<option value="ms">Malay</option>
-<option value="bn">Bengali</option>
-<option value="hi">Hindi</option>
-<option value="ta">Tamil</option>
-<option value="ar">Arabic</option>
-<option value="zh">Chinese</option>
-</select>
-<span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-yellow-300">🌐</span>
-</div>
-<!-- ডাইনামিক লগইন/প্রোফাইল বাটন -->
-<button class="p-2 bg-blue-800 rounded-lg hover:bg-blue-700 transition flex items-center gap-1 text-sm font-semibold" id="mainAuthBtn" onclick="handleAuthClick()">
-<svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-<span data-i18n="login" id="loginBtnText">Login</span>
-</button>
-<!-- লাইভ চ্যাট বাটন -->
-<button class="p-2 bg-blue-800 rounded-lg hover:bg-blue-700 transition flex items-center gap-1 text-sm font-semibold" onclick="openChat()" title="Live Chat">
-<svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-<span class="hidden md:inline" data-i18n="liveChat">Live Chat</span>
-</button>
-</div>
-</header>
-<!-- বাঁ দিকের স্লাইডিং মেনু/সাইডবার -->
-<div class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between p-6" id="sidebar">
-<div>
-<div class="flex justify-between items-center mb-6">
-<h2 class="text-xl font-bold text-gray-800" data-i18n="menuAndProfile">Menu & Profile</h2>
-<button class="text-gray-500 hover:text-black font-bold text-xl" onclick="toggleSidebar()">✕</button>
-</div>
-<div class="mb-6 p-4 bg-gray-50 rounded-lg border hidden" id="sidebarProfile">
-<h3 class="font-bold text-gray-800" id="profileName">Guest</h3>
-<p class="text-xs text-gray-500" id="profileEmail">-</p>
-<button class="mt-2 text-xs text-red-600 font-bold hover:underline" data-i18n="logout" onclick="logoutCustomer()">Logout</button>
-</div>
-<ul class="space-y-3 font-semibold text-gray-700">
-<li><a class="hover:text-blue-600" data-i18n="home" href="#" onclick="toggleSidebar(); showHome();">Home</a></li>
-<li><a class="hover:text-blue-600" data-i18n="orderHistory" href="#" onclick="toggleSidebar(); showOrderHistory();">Order History</a></li>
-</ul>
-</div>
-<div class="text-xs text-gray-400 text-center">Hameeds Bistro · RMP POS v2.4</div>
-</div>
-<div class="hidden fixed inset-0 z-40" id="sidebarOverlay" onclick="closeSidebar()"></div>
-<!-- মূল কন্টেন্ট সেকশন -->
-<main class="p-6 max-w-4xl mx-auto flex-grow w-full">
-<!-- হোম পেজ -->
-<div class="bg-white p-8 rounded-2xl shadow-md text-center border border-gray-200" id="homeView">
-<h2 class="text-3xl font-bold text-gray-800 mb-2" data-i18n="welcomeTitle">Welcome to Hameeds Bistro</h2>
-<p class="text-gray-600 mb-8" data-i18n="welcomeSubtitle">Please choose your dining method to start ordering</p>
-<div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="customerOrderingButtons">
-<button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-4 rounded-xl font-bold text-base md:text-lg shadow-lg transition" data-i18n="dineInBtn" onclick="startOrder('dine_in')">🍽️ Dine-In</button>
-<button class="bg-green-600 hover:bg-green-700 text-white px-4 py-4 rounded-xl font-bold text-base md:text-lg shadow-lg transition" data-i18n="takeawayBtn" onclick="startOrder('takeaway')">🛍️ Takeaway</button>
-</div>
-<div class="mt-4 max-w-md mx-auto" id="homeWaiterCallWrap">
-<button class="w-full bg-blue-700 hover:bg-blue-800 text-white px-4 py-4 rounded-xl font-black text-base md:text-lg shadow-lg transition" id="customerCallBellBtn" onclick="callWaiterFromTable()" type="button">
-                    🔔 <span>Call Waiter</span>
-</button>
-<div class="hidden mt-2 text-sm font-bold rounded-xl px-3 py-2" id="customerCallStatus"></div>
-</div>
-<div class="hidden max-w-lg mx-auto" id="menuOnlyHomeBox">
-<div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-3 text-sm font-semibold">Ordering is currently unavailable. You can still browse our complete menu.</div>
-<button class="w-full bg-blue-700 hover:bg-blue-800 text-white p-5 rounded-xl font-bold text-xl shadow-lg transition" onclick="openMenuOnlyView()" type="button">📖 View Menu</button>
-</div>
-<p class="mt-5 text-sm text-gray-500 font-medium">
+                </button>
+            </div>
+
+            <div id="headerSearchExpanded" class="hidden w-full items-center gap-2">
+                <input id="menuSearchInput" type="search" autocomplete="off"
+                    class="flex-1 min-w-0 bg-white text-slate-800 border border-slate-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-yellow-400"
+                    placeholder="Search all menu items or categories..."
+                    data-i18n-placeholder="searchItemPlaceholder">
+                <button type="button" id="headerSearchGoBtn"
+                    class="shrink-0 w-11 h-11 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black shadow"
+                    aria-label="Search" title="Search">🔍</button>
+            </div>
+
+            <div id="menuSearchSuggestions"
+                class="hidden absolute top-full mt-2 left-0 right-0 bg-white text-slate-800 border border-slate-200 rounded-2xl shadow-2xl max-h-80 overflow-y-auto z-[10060]"></div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Header language selector: only translatable UI text changes; brand/footer stay English -->
+            <div class="relative">
+                <select id="langSelect" onchange="changeLanguage(this.value)" aria-label="Language" title="Language" class="appearance-none bg-blue-800 hover:bg-blue-700 text-white border border-blue-700 rounded-lg pl-9 pr-7 py-2 text-sm font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    <option value="en">English</option>
+                    <option value="en_us">English (US)</option>
+                    <option value="ms">Malay</option>
+                    <option value="bn">Bengali</option>
+                    <option value="hi">Hindi</option>
+                    <option value="ta">Tamil</option>
+                    <option value="ar">Arabic</option>
+                    <option value="zh">Chinese</option>
+                </select>
+                <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-yellow-300">🌐</span>
+            </div>
+            <!-- ডাইনামিক লগইন/প্রোফাইল বাটন -->
+            <button id="mainAuthBtn" onclick="handleAuthClick()" class="p-2 bg-blue-800 rounded-lg hover:bg-blue-700 transition flex items-center gap-1 text-sm font-semibold">
+                <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span id="loginBtnText" data-i18n="login">Login</span>
+            </button>
+            <!-- লাইভ চ্যাট বাটন -->
+            <button onclick="openChat()" class="p-2 bg-blue-800 rounded-lg hover:bg-blue-700 transition flex items-center gap-1 text-sm font-semibold" title="Live Chat">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                <span class="hidden md:inline" data-i18n="liveChat">Live Chat</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- বাঁ দিকের স্লাইডিং মেনু/সাইডবার -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between p-6">
+        <div>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800" data-i18n="menuAndProfile">Menu & Profile</h2>
+                <button onclick="toggleSidebar()" class="text-gray-500 hover:text-black font-bold text-xl">✕</button>
+            </div>
+            <div id="sidebarProfile" class="mb-6 p-4 bg-gray-50 rounded-lg border hidden">
+                <h3 class="font-bold text-gray-800" id="profileName">Guest</h3>
+                <p class="text-xs text-gray-500" id="profileEmail">-</p>
+                <button onclick="logoutCustomer()" class="mt-2 text-xs text-red-600 font-bold hover:underline" data-i18n="logout">Logout</button>
+            </div>
+            <ul class="space-y-3 font-semibold text-gray-700">
+                <li><a href="#" onclick="toggleSidebar(); showHome();" class="hover:text-blue-600" data-i18n="home">Home</a></li>
+                <li><a href="#" onclick="toggleSidebar(); showOrderHistory();" class="hover:text-blue-600" data-i18n="orderHistory">Order History</a></li>
+            </ul>
+        </div>
+        <div class="text-xs text-gray-400 text-center">Hameeds Bistro · RMP POS v2.4</div>
+    </div>
+    <div id="sidebarOverlay" class="hidden fixed inset-0 z-40" onclick="closeSidebar()"></div>
+
+    <!-- মূল কন্টেন্ট সেকশন -->
+    <main class="p-6 max-w-4xl mx-auto flex-grow w-full">
+        <!-- হোম পেজ -->
+        <div id="homeView" class="bg-white p-8 rounded-2xl shadow-md text-center border border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2" data-i18n="welcomeTitle">Welcome to Hameeds Bistro</h2>
+            <p class="text-gray-600 mb-8" data-i18n="welcomeSubtitle">Please choose your dining method to start ordering</p>
+            <div id="customerOrderingButtons" class="grid grid-cols-2 gap-3 max-w-md mx-auto">
+                <button onclick="startOrder('dine_in')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-4 rounded-xl font-bold text-base md:text-lg shadow-lg transition" data-i18n="dineInBtn">🍽️ Dine-In</button>
+                <button onclick="startOrder('takeaway')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-4 rounded-xl font-bold text-base md:text-lg shadow-lg transition" data-i18n="takeawayBtn">🛍️ Takeaway</button>
+            </div>
+            <div id="homeWaiterCallWrap" class="mt-4 max-w-md mx-auto">
+                <button id="customerCallBellBtn" type="button"
+                        onclick="callWaiterFromExistingQr()"
+                        class="w-full bg-amber-500 hover:bg-amber-600 text-white px-4 py-4 rounded-xl font-black text-base md:text-lg shadow-lg transition">
+                    🔔 Call Waiter
+                </button>
+                <div id="customerCallStatus" class="hidden mt-2 rounded-xl px-3 py-2 text-sm font-bold"></div>
+            </div>
+            <div id="menuOnlyHomeBox" class="hidden max-w-lg mx-auto">
+                <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-3 text-sm font-semibold">Ordering is currently unavailable. You can still browse our complete menu.</div>
+                <button type="button" onclick="openMenuOnlyView()" class="w-full bg-blue-700 hover:bg-blue-800 text-white p-5 rounded-xl font-bold text-xl shadow-lg transition">📖 View Menu</button>
+            </div>
+            <p class="mt-5 text-sm text-gray-500 font-medium">
                 🌐 You can change your language anytime. 7 languages are available.
             </p>
-<div class="mt-6" id="homeTop15Slideshow">
-<div class="flex items-center justify-between mb-3">
-<h3 class="text-left font-extrabold text-gray-800 text-lg" id="homeTop15Title">Top 15 Popular</h3>
-<div class="text-xs font-bold text-gray-500" id="homeTop15Counter"></div>
-</div>
-<div class="relative overflow-hidden rounded-2xl bg-slate-100 border border-slate-200 shadow-sm" id="homeTop15SlideStage">
-<img alt="Top popular item" class="w-full h-full object-cover block cursor-pointer" id="homeTop15SlideImage" onerror="this.onerror=null;this.src='images/logo.png'" src="images/logo.png"/>
-<div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent px-4 pt-12 pb-4">
-<div class="text-white text-lg md:text-xl font-black text-left drop-shadow" id="homeTop15SlideName"></div>
-</div>
-<button aria-label="Previous" class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/45 text-white font-black" id="homeTop15Prev" type="button">‹</button>
-<button aria-label="Next" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/45 text-white font-black" id="homeTop15Next" type="button">›</button>
-</div>
-</div>
-</div>
-<!-- অর্ডার পেজ -->
-<div class="hidden" id="orderView">
-<div class="bg-white p-4 rounded-xl shadow-md mb-6 border border-gray-200 flex flex-wrap justify-between items-center gap-4">
-<div class="flex items-center gap-3">
-<button class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-1 transition" onclick="showHome()">
+
+            <div id="homeTop15Slideshow" class="mt-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 id="homeTop15Title" class="text-left font-extrabold text-gray-800 text-lg">Top 15 Popular</h3>
+                    <div id="homeTop15Counter" class="text-xs font-bold text-gray-500"></div>
+                </div>
+                <div id="homeTop15SlideStage" class="relative overflow-hidden rounded-2xl bg-slate-100 border border-slate-200 shadow-sm">
+                    <img id="homeTop15SlideImage" src="images/logo.png" alt="Top popular item"
+                         class="w-full h-full object-cover block cursor-pointer"
+                         onerror="this.onerror=null;this.src='images/logo.png'">
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent px-4 pt-12 pb-4">
+                        <div id="homeTop15SlideName" class="text-white text-lg md:text-xl font-black text-left drop-shadow"></div>
+                    </div>
+                    <button id="homeTop15Prev" type="button" aria-label="Previous"
+                            class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/45 text-white font-black">‹</button>
+                    <button id="homeTop15Next" type="button" aria-label="Next"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/45 text-white font-black">›</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- অর্ডার পেজ -->
+        <div id="orderView" class="hidden">
+            <div class="bg-white p-4 rounded-xl shadow-md mb-6 border border-gray-200 flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <button onclick="showHome()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-1 transition">
                         🏠 <span data-i18n="home">Home</span>
-</button>
-<div>
-<span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded uppercase" id="selectedOrderType">Dine-In</span>
-<p class="text-xs text-gray-500" data-i18n="currentLocation">Current Order Location</p>
-</div>
-</div>
-<div class="flex items-center gap-2 flex-wrap" id="tableChangeContainer">
-<div class="hidden bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg px-3 py-2 text-xs font-black" id="qrTableLockBadge">📱 QR TABLE</div>
-<select class="border p-2 rounded-lg text-sm font-semibold bg-gray-50" id="activeSectionSelect" onchange="updateActiveTableDropdown()">
-<option data-i18n="indoor" value="indoor">Indoor (A)</option>
-<option data-i18n="outdoor" value="outdoor">Outdoor (B)</option>
-<option data-i18n="firstFloor" value="first_floor">First Floor (C)</option>
-</select>
-<select class="border p-2 rounded-lg text-sm font-semibold bg-gray-50" id="activeTableSelect"></select>
-</div>
-</div>
-<div class="hidden mb-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm font-bold" id="menuOnlyNotice">📖 Menu Only Mode — ordering is currently disabled. Prices are shown for your selected Dine-In / Takeaway option.</div>
-<div class="mb-6 relative" id="categoryContainer"></div>
-<h3 class="text-2xl font-bold mb-4 text-gray-800" data-i18n="topPopular" id="menuTitle">Top 15 Popular Items</h3>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-24" id="menuContainer"></div>
-</div>
-<!-- অর্ডার হিস্টরি ভিউ -->
-<div class="hidden" id="historyView">
-<div class="flex gap-2 mb-4">
-<button class="bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-lg font-bold text-sm flex items-center gap-1" onclick="showHome()">🏠 <span data-i18n="home">Home</span></button>
-</div>
-<h2 class="text-2xl font-bold mb-4 text-gray-800" data-i18n="orderHistory">Order History</h2>
-<div class="space-y-4" id="orderHistoryContainer"></div>
-</div>
-</main>
-<!-- ORDER HISTORY DETAIL MODAL -->
-<div class="hidden fixed inset-0 bg-black bg-opacity-55 z-[65] flex justify-center items-center p-4" id="historyOrderDetailModal">
-<div class="bg-white rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
-<div class="bg-blue-900 text-white px-5 py-4 flex items-center justify-between gap-3">
-<div>
-<h3 class="font-extrabold text-lg" id="historyOrderDetailTitle">Order Details</h3>
-<p class="text-xs text-blue-200" id="historyOrderDetailSub"></p>
-</div>
-<button class="w-9 h-9 rounded-full bg-blue-800 hover:bg-blue-700 font-bold text-xl" onclick="closeHistoryOrderDetail()" type="button">×</button>
-</div>
-<div class="p-5 overflow-y-auto flex-1" id="historyOrderDetailBody"></div>
-<div class="p-4 border-t bg-gray-50 flex flex-wrap justify-end gap-2" id="historyOrderDetailActions"></div>
-</div>
-</div>
-<!-- কার্ট ও চেকআউট বার -->
-<div class="hidden fixed bottom-16 left-0 right-0 bg-blue-900 text-white border-t border-blue-800 p-4 shadow-2xl flex justify-between items-center max-w-4xl mx-auto rounded-t-2xl z-40" id="cartBar">
-<div class="flex items-center gap-3">
-<span class="bg-yellow-400 text-black px-3 py-1 rounded-full font-bold text-sm" id="cartCount">0 Items</span>
-<div>
-<span class="text-xs text-yellow-300 block" data-i18n="subtotal">Subtotal:</span>
-<span class="font-bold text-lg" id="cartSubtotal">RM0.00</span>
-</div>
-</div>
-<button class="bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-3 rounded-xl font-bold shadow transition flex items-center gap-2" onclick="openCartModal()">
+                    </button>
+                    <div>
+                        <span id="selectedOrderType" class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded uppercase">Dine-In</span>
+                        <p class="text-xs text-gray-500" data-i18n="currentLocation">Current Order Location</p>
+                    </div>
+                </div>
+
+                <div id="tableChangeContainer" class="flex items-center gap-2 flex-wrap">
+                    <div id="qrTableLockBadge" class="hidden bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg px-3 py-2 text-xs font-black">📱 QR TABLE</div>
+                    <select id="activeSectionSelect" onchange="updateActiveTableDropdown()" class="border p-2 rounded-lg text-sm font-semibold bg-gray-50">
+                        <option value="indoor" data-i18n="indoor">Indoor (A)</option>
+                        <option value="outdoor" data-i18n="outdoor">Outdoor (B)</option>
+                        <option value="first_floor" data-i18n="firstFloor">First Floor (C)</option>
+                    </select>
+                    <select id="activeTableSelect" class="border p-2 rounded-lg text-sm font-semibold bg-gray-50"></select>
+                </div>
+            </div>
+
+            <div id="menuOnlyNotice" class="hidden mb-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm font-bold">📖 Menu Only Mode — ordering is currently disabled. Prices are shown for your selected Dine-In / Takeaway option.</div>
+
+            <div class="mb-6 relative" id="categoryContainer"></div>
+            <h3 class="text-2xl font-bold mb-4 text-gray-800" id="menuTitle" data-i18n="topPopular">Top 15 Popular Items</h3>
+            <div id="menuContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-24"></div>
+        </div>
+        
+        <!-- অর্ডার হিস্টরি ভিউ -->
+        <div id="historyView" class="hidden">
+            <div class="flex gap-2 mb-4">
+                <button onclick="showHome()" class="bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-lg font-bold text-sm flex items-center gap-1">🏠 <span data-i18n="home">Home</span></button>
+            </div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800" data-i18n="orderHistory">Order History</h2>
+            <div id="orderHistoryContainer" class="space-y-4"></div>
+        </div>
+    </main>
+
+
+    <!-- ORDER HISTORY DETAIL MODAL -->
+    <div id="historyOrderDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-55 z-[65] flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
+            <div class="bg-blue-900 text-white px-5 py-4 flex items-center justify-between gap-3">
+                <div>
+                    <h3 id="historyOrderDetailTitle" class="font-extrabold text-lg">Order Details</h3>
+                    <p id="historyOrderDetailSub" class="text-xs text-blue-200"></p>
+                </div>
+                <button type="button" onclick="closeHistoryOrderDetail()" class="w-9 h-9 rounded-full bg-blue-800 hover:bg-blue-700 font-bold text-xl">&times;</button>
+            </div>
+            <div id="historyOrderDetailBody" class="p-5 overflow-y-auto flex-1"></div>
+            <div id="historyOrderDetailActions" class="p-4 border-t bg-gray-50 flex flex-wrap justify-end gap-2"></div>
+        </div>
+    </div>
+
+    <!-- কার্ট ও চেকআউট বার -->
+    <div id="cartBar" class="hidden fixed bottom-16 left-0 right-0 bg-blue-900 text-white border-t border-blue-800 p-4 shadow-2xl flex justify-between items-center max-w-4xl mx-auto rounded-t-2xl z-40">
+        <div class="flex items-center gap-3">
+            <span class="bg-yellow-400 text-black px-3 py-1 rounded-full font-bold text-sm" id="cartCount">0 Items</span>
+            <div>
+                <span class="text-xs text-yellow-300 block" data-i18n="subtotal">Subtotal:</span>
+                <span class="font-bold text-lg" id="cartSubtotal">RM0.00</span>
+            </div>
+        </div>
+        <button onclick="openCartModal()" class="bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-3 rounded-xl font-bold shadow transition flex items-center gap-2">
             🛒 <span data-i18n="viewCartCheckout">View Cart & Checkout</span>
-</button>
-</div>
-<!-- কার্ট মোডাল / প্যানেল -->
-<div class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4" id="cartModal">
-<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-<button class="absolute top-3 right-3 text-gray-500 hover:text-black font-bold text-xl" onclick="closeCartModal()">✕</button>
-<h3 class="text-xl font-bold text-gray-800 mb-4">Your Shopping Cart</h3>
-<div class="max-h-60 overflow-y-auto mb-4 border-b pb-2 space-y-3" id="cartItemsListContainer"></div>
-<div class="space-y-1 mb-6 text-sm text-gray-700">
-<div class="flex justify-between"><span data-i18n="subtotal">Subtotal:</span><span id="cartModalSubtotal">RM0.00</span></div>
-<div class="flex justify-between"><span data-i18n="sstTax">SST Tax (6%):</span><span id="cartModalTax">RM0.00</span></div>
-<div class="flex justify-between font-bold text-lg text-black border-t pt-1"><span data-i18n="total">Total:</span><span id="cartModalTotal">RM0.00</span></div>
-</div>
-<button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow transition" onclick="proceedToCheckout()">Proceed to Checkout</button>
-</div>
-</div>
-<!-- চেকআউট মোডাল -->
-<div class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4" id="checkoutModal">
-<div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[94vh] overflow-y-auto">
-<button class="absolute top-3 right-3 text-gray-500 hover:text-black font-bold text-xl" onclick="closeCheckoutModal()">✕</button>
-<h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="orderSummary">Order Summary & Checkout</h3>
-<div class="bg-blue-50 p-3 rounded-lg mb-4 text-xs text-blue-900 space-y-1 font-semibold">
-<div class="flex justify-between"><span>Order Type:</span> <span class="uppercase" id="summaryOrderType">Takeaway</span></div>
-<div class="flex justify-between"><span>Table / Location:</span> <span id="summaryTableLocation">TAKEAWAY</span></div>
-</div>
-<div class="max-h-36 overflow-y-auto mb-4 border-b pb-2 space-y-2" id="checkoutItemsList"></div>
-<div class="space-y-1 mb-4 text-sm text-gray-700">
-<div class="flex justify-between"><span data-i18n="subtotal">Subtotal:</span> <span id="modalSubtotal">RM0.00</span></div>
-<div class="flex justify-between"><span data-i18n="sstTax">SST Tax (6%):</span> <span id="modalTax">RM0.00</span></div>
-<div class="flex justify-between font-bold text-lg text-black border-t pt-1"><span data-i18n="total">Total:</span> <span id="modalTotal">RM0.00</span></div>
-</div>
-<div class="hidden mb-5 rounded-2xl border-2 border-blue-300 bg-blue-50 p-4" id="checkoutTableVerify">
-<div class="text-xl md:text-2xl font-black text-blue-950">🍽️ VERIFY YOUR TABLE NUMBER</div>
-<p class="mt-1 mb-4 text-sm md:text-base font-semibold text-blue-800">Please confirm your table. You can change it here before placing the order.</p>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-<div>
-<label class="block text-sm font-black text-gray-800 mb-1">SECTION</label>
-<select class="w-full border-2 border-blue-300 p-4 rounded-xl text-lg font-black bg-white" id="checkoutSectionSelect" onchange="rmpCheckoutSectionChanged()">
-<option value="indoor">Indoor (A)</option>
-<option value="outdoor">Outdoor (B)</option>
-<option value="first_floor">First Floor (C)</option>
-</select>
-</div>
-<div>
-<label class="block text-sm font-black text-gray-800 mb-1">TABLE NUMBER</label>
-<select class="w-full border-2 border-blue-300 p-4 rounded-xl text-xl font-black bg-white" id="checkoutTableSelect" onchange="rmpCheckoutTableChanged()"></select>
-</div>
-</div>
-<label class="mt-4 flex items-center gap-3 rounded-xl bg-white border border-blue-200 p-3 cursor-pointer">
-<input class="w-6 h-6 accent-blue-600" id="checkoutTableConfirmed" type="checkbox"/>
-<span class="text-base md:text-lg font-black text-gray-900">I confirm this is my table</span>
-</label>
-</div>
-<div class="space-y-4 mb-6">
-<div>
-<label class="block text-base font-black text-gray-800 mb-1" data-i18n="customerName">Customer Name</label>
-<input autocomplete="name" class="w-full border-2 border-gray-300 p-4 rounded-xl text-lg font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none" id="checkoutName" placeholder="Enter your name" type="text"/>
-</div>
-<div>
-<label class="block text-base font-black text-gray-800 mb-1" data-i18n="phoneNumber">Phone Number</label>
-<input autocomplete="tel" class="w-full border-2 border-gray-300 p-4 rounded-xl text-lg font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none" id="checkoutPhone" inputmode="tel" placeholder="Enter your phone number" type="tel"/>
-</div>
-</div>
-<div class="flex gap-3">
-<button class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 py-2.5 rounded-xl font-semibold" data-i18n="cancel" onclick="closeCheckoutModal()">Cancel</button>
-<button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold" data-i18n="placeOrder" onclick="submitOrder()">Place Order</button>
-</div>
-</div>
-</div>
-<!-- Item Modifier Modal -->
-<div class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex justify-center items-center p-4" id="modifierModal">
-<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-<button class="absolute top-3 right-3 text-gray-500 hover:text-black font-bold text-xl" onclick="closeModifierModal()">✕</button>
-<h3 class="text-xl font-bold text-gray-800 mb-1" data-i18n="modifyItemTitle">Modify Item</h3>
-<p class="text-sm font-semibold text-blue-700 mb-4" id="modifierItemName"></p>
-<div class="space-y-2 mb-4" id="modifierOptions">
-<div class="text-xs text-gray-500 p-2">Loading modifiers...</div>
-</div>
-<label class="block text-xs font-semibold text-gray-600 mb-1">Special Request</label>
-<textarea class="w-full border rounded-lg p-2 text-sm" id="modifierCustomNote" placeholder="Write your own request..." rows="2"></textarea>
-<div class="modifier-actions flex gap-3 mt-3">
-<button class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2.5 rounded-xl font-semibold" onclick="closeModifierModal()">Cancel</button>
-<button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold" onclick="saveModifier()">Save Modification</button>
-</div>
-</div>
-</div>
-<!-- লগইন ও রেজিস্ট্রেশন মোডাল -->
-<div class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4" id="loginModal">
-<div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-<h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="customerLogin" id="authTitle">Customer Login</h3>
-<div class="space-y-3" id="loginForm">
-<input class="w-full border p-2.5 rounded-lg text-sm" id="loginEmail" placeholder="Email Address" type="email"/>
-<input class="w-full border p-2.5 rounded-lg text-sm" id="loginPassword" placeholder="Password" type="password"/>
-<button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold" data-i18n="login" onclick="loginCustomer()">Login</button>
-<p class="text-xs text-center text-gray-500 mt-2"><span data-i18n="noAccount">Don't have an account?</span> <span class="text-blue-600 cursor-pointer font-bold" data-i18n="registerHere" onclick="toggleAuthMode('register')">Register here</span></p>
-</div>
-<div class="space-y-3 hidden" id="registerForm">
-<input class="w-full border p-2.5 rounded-lg text-sm" id="regName" placeholder="Full Name" type="text"/>
-<input class="w-full border p-2.5 rounded-lg text-sm" id="regPhone" placeholder="Phone Number" type="text"/>
-<input class="w-full border p-2.5 rounded-lg text-sm" id="regEmail" placeholder="Email (Username)" type="email"/>
-<input class="w-full border p-2.5 rounded-lg text-sm" id="regPassword" placeholder="Password" type="password"/>
-<button class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-semibold" data-i18n="registerAccount" onclick="registerCustomer()">Register Account</button>
-<p class="text-xs text-center text-gray-500 mt-2"><span data-i18n="hasAccount">Already have an account?</span> <span class="text-blue-600 cursor-pointer font-bold" data-i18n="loginHere" onclick="toggleAuthMode('login')">Login here</span></p>
-</div>
-<button class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-xl text-sm font-semibold" data-i18n="close" onclick="closeLoginModal()">Close</button>
-</div>
-</div>
-<!-- Full-screen responsive image viewer -->
-<div aria-label="Menu image viewer" aria-modal="true" class="fixed inset-0 bg-black/95 z-[20050] hidden flex flex-col overflow-hidden" id="imageModal" role="dialog">
-<div class="shrink-0 flex items-center justify-between gap-3 px-4 md:px-6 py-4 bg-black/80 text-white border-b border-white/10">
-<div class="min-w-0 pr-2">
-<h3 class="font-black text-xl md:text-2xl leading-tight truncate" id="modalItemOriginalName"></h3>
-<div class="hidden mt-1 text-sm md:text-base font-semibold text-yellow-300 leading-tight truncate" id="modalItemTranslatedName"></div>
-</div>
-<button aria-label="Close image" class="shrink-0 bg-white/15 hover:bg-white/25 text-white w-10 h-10 rounded-full font-bold flex items-center justify-center text-2xl" onclick="closeImageViewer()">×</button>
-</div>
-<div class="relative flex-1 min-h-0 overflow-hidden flex items-center justify-center touch-none select-none" id="imageViewerStage">
-<img alt="Menu item" class="max-w-full max-h-full object-contain origin-center will-change-transform" draggable="false" id="modalImage" src="" style="transform:scale(1); transition:transform .15s ease;"/>
-</div>
-<div class="shrink-0 bg-black/85 border-t border-white/10 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))]">
-<div class="max-w-xl mx-auto grid grid-cols-4 gap-2">
-<button aria-label="Zoom out" class="bg-white/15 hover:bg-white/25 text-white rounded-xl py-3 font-bold text-sm" onclick="zoomImageOut()" type="button">− Zoom</button>
-<button aria-label="Reset zoom" class="bg-white/15 hover:bg-white/25 text-white rounded-xl py-3 font-bold text-sm" onclick="resetImageZoom()" type="button">Reset</button>
-<button aria-label="Zoom in" class="bg-white/15 hover:bg-white/25 text-white rounded-xl py-3 font-bold text-sm" onclick="zoomImageIn()" type="button">+ Zoom</button>
-<button class="bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 font-bold text-sm" onclick="closeImageViewer()" type="button">Close</button>
-</div>
-<div class="text-center text-[11px] text-white/60 mt-2">Zoom, then drag the image left/right/up/down. Mouse wheel and phone pinch are also supported.</div>
-</div>
-</div>
-<!-- ফুটার সেকশন -->
-<footer class="bg-gray-900 text-gray-300 text-center py-4 border-t border-gray-800">
-<p class="text-sm font-medium tracking-wide">
-            Copyright © 2026 by Rudranshi. All Rights Reserved.
+        </button>
+    </div>
+
+    <!-- কার্ট মোডাল / প্যানেল -->
+    <div id="cartModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeCartModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black font-bold text-xl">✕</button>
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Your Shopping Cart</h3>
+            <div id="cartItemsListContainer" class="max-h-60 overflow-y-auto mb-4 border-b pb-2 space-y-3"></div>
+            <div class="space-y-1 mb-6 text-sm text-gray-700">
+                <div class="flex justify-between"><span data-i18n="subtotal">Subtotal:</span><span id="cartModalSubtotal">RM0.00</span></div>
+                <div class="flex justify-between"><span data-i18n="sstTax">SST Tax (6%):</span><span id="cartModalTax">RM0.00</span></div>
+                <div class="flex justify-between font-bold text-lg text-black border-t pt-1"><span data-i18n="total">Total:</span><span id="cartModalTotal">RM0.00</span></div>
+            </div>
+            <button onclick="proceedToCheckout()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow transition">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- চেকআউট মোডাল -->
+    <div id="checkoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[94vh] overflow-y-auto">
+            <button onclick="closeCheckoutModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black font-bold text-xl">✕</button>
+            <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="orderSummary">Order Summary & Checkout</h3>
+            
+            <div class="bg-blue-50 p-3 rounded-lg mb-4 text-xs text-blue-900 space-y-1 font-semibold">
+                <div class="flex justify-between"><span>Order Type:</span> <span id="summaryOrderType" class="uppercase">Takeaway</span></div>
+                <div class="flex justify-between"><span>Table / Location:</span> <span id="summaryTableLocation">TAKEAWAY</span></div>
+            </div>
+
+            <div id="checkoutItemsList" class="max-h-36 overflow-y-auto mb-4 border-b pb-2 space-y-2"></div>
+            <div class="space-y-1 mb-4 text-sm text-gray-700">
+                <div class="flex justify-between"><span data-i18n="subtotal">Subtotal:</span> <span id="modalSubtotal">RM0.00</span></div>
+                <div class="flex justify-between"><span data-i18n="sstTax">SST Tax (6%):</span> <span id="modalTax">RM0.00</span></div>
+                <div class="flex justify-between font-bold text-lg text-black border-t pt-1"><span data-i18n="total">Total:</span> <span id="modalTotal">RM0.00</span></div>
+            </div>
+            <div id="checkoutTableVerify" class="hidden mb-5 rounded-2xl border-2 border-blue-300 bg-blue-50 p-4">
+                <div class="text-xl md:text-2xl font-black text-blue-950">🍽️ VERIFY YOUR TABLE NUMBER</div>
+                <p class="mt-1 mb-4 text-sm md:text-base font-semibold text-blue-800">Please confirm your table. You can change it here before placing the order.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-black text-gray-800 mb-1">SECTION</label>
+                        <select id="checkoutSectionSelect" onchange="rmpCheckoutSectionChanged()" class="w-full border-2 border-blue-300 p-4 rounded-xl text-lg font-black bg-white">
+                            <option value="indoor">Indoor (A)</option>
+                            <option value="outdoor">Outdoor (B)</option>
+                            <option value="first_floor">First Floor (C)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black text-gray-800 mb-1">TABLE NUMBER</label>
+                        <select id="checkoutTableSelect" onchange="rmpCheckoutTableChanged()" class="w-full border-2 border-blue-300 p-4 rounded-xl text-xl font-black bg-white"></select>
+                    </div>
+                </div>
+                <label class="mt-4 flex items-center gap-3 rounded-xl bg-white border border-blue-200 p-3 cursor-pointer">
+                    <input id="checkoutTableConfirmed" type="checkbox" class="w-6 h-6 accent-blue-600">
+                    <span class="text-base md:text-lg font-black text-gray-900">I confirm this is my table</span>
+                </label>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-base font-black text-gray-800 mb-1" data-i18n="customerName">Customer Name</label>
+                    <input type="text" id="checkoutName" autocomplete="name" placeholder="Enter your name" class="w-full border-2 border-gray-300 p-4 rounded-xl text-lg font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none">
+                </div>
+                <div>
+                    <label class="block text-base font-black text-gray-800 mb-1" data-i18n="phoneNumber">Phone Number</label>
+                    <input type="tel" id="checkoutPhone" autocomplete="tel" inputmode="tel" placeholder="Enter your phone number" class="w-full border-2 border-gray-300 p-4 rounded-xl text-lg font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeCheckoutModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 py-2.5 rounded-xl font-semibold" data-i18n="cancel">Cancel</button>
+                <button onclick="submitOrder()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold" data-i18n="placeOrder">Place Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Modifier Modal -->
+    <div id="modifierModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModifierModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black font-bold text-xl">✕</button>
+            <h3 class="text-xl font-bold text-gray-800 mb-1" data-i18n="modifyItemTitle">Modify Item</h3>
+            <p id="modifierItemName" class="text-sm font-semibold text-blue-700 mb-4"></p>
+            <div class="space-y-2 mb-4" id="modifierOptions">
+                <div class="text-xs text-gray-500 p-2">Loading modifiers...</div>
+            </div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Special Request</label>
+            <textarea id="modifierCustomNote" rows="2" class="w-full border rounded-lg p-2 text-sm" placeholder="Write your own request..."></textarea>
+            <div class="modifier-actions flex gap-3 mt-3">
+                <button onclick="closeModifierModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2.5 rounded-xl font-semibold">Cancel</button>
+                <button onclick="saveModifier()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold">Save Modification</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- লগইন ও রেজিস্ট্রেশন মোডাল -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <h3 class="text-xl font-bold text-gray-800 mb-4" id="authTitle" data-i18n="customerLogin">Customer Login</h3>
+            <div id="loginForm" class="space-y-3">
+                <input type="email" id="loginEmail" placeholder="Email Address" class="w-full border p-2.5 rounded-lg text-sm">
+                <input type="password" id="loginPassword" placeholder="Password" class="w-full border p-2.5 rounded-lg text-sm">
+                <button onclick="loginCustomer()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold" data-i18n="login">Login</button>
+                <p class="text-xs text-center text-gray-500 mt-2"><span data-i18n="noAccount">Don't have an account?</span> <span onclick="toggleAuthMode('register')" class="text-blue-600 cursor-pointer font-bold" data-i18n="registerHere">Register here</span></p>
+            </div>
+            <div id="registerForm" class="space-y-3 hidden">
+                <input type="text" id="regName" placeholder="Full Name" class="w-full border p-2.5 rounded-lg text-sm">
+                <input type="text" id="regPhone" placeholder="Phone Number" class="w-full border p-2.5 rounded-lg text-sm">
+                <input type="email" id="regEmail" placeholder="Email (Username)" class="w-full border p-2.5 rounded-lg text-sm">
+                <input type="password" id="regPassword" placeholder="Password" class="w-full border p-2.5 rounded-lg text-sm">
+                <button onclick="registerCustomer()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-semibold" data-i18n="registerAccount">Register Account</button>
+                <p class="text-xs text-center text-gray-500 mt-2"><span data-i18n="hasAccount">Already have an account?</span> <span onclick="toggleAuthMode('login')" class="text-blue-600 cursor-pointer font-bold" data-i18n="loginHere">Login here</span></p>
+            </div>
+            <button onclick="closeLoginModal()" class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-xl text-sm font-semibold" data-i18n="close">Close</button>
+        </div>
+    </div>
+
+    <!-- Full-screen responsive image viewer -->
+    <div id="imageModal" class="fixed inset-0 bg-black/95 z-[20050] hidden flex flex-col overflow-hidden" role="dialog" aria-modal="true" aria-label="Menu image viewer">
+        <div class="shrink-0 flex items-center justify-between gap-3 px-4 md:px-6 py-4 bg-black/80 text-white border-b border-white/10">
+            <div class="min-w-0 pr-2">
+                <h3 id="modalItemOriginalName" class="font-black text-xl md:text-2xl leading-tight truncate"></h3>
+                <div id="modalItemTranslatedName" class="hidden mt-1 text-sm md:text-base font-semibold text-yellow-300 leading-tight truncate"></div>
+            </div>
+            <button onclick="closeImageViewer()" class="shrink-0 bg-white/15 hover:bg-white/25 text-white w-10 h-10 rounded-full font-bold flex items-center justify-center text-2xl" aria-label="Close image">&times;</button>
+        </div>
+
+        <div id="imageViewerStage" class="relative flex-1 min-h-0 overflow-hidden flex items-center justify-center touch-none select-none">
+            <img id="modalImage" src="" alt="Menu item" draggable="false" class="max-w-full max-h-full object-contain origin-center will-change-transform" style="transform:scale(1); transition:transform .15s ease;">
+        </div>
+
+        <div class="shrink-0 bg-black/85 border-t border-white/10 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))]">
+            <div class="max-w-xl mx-auto grid grid-cols-4 gap-2">
+                <button type="button" onclick="zoomImageOut()" class="bg-white/15 hover:bg-white/25 text-white rounded-xl py-3 font-bold text-sm" aria-label="Zoom out">− Zoom</button>
+                <button type="button" onclick="resetImageZoom()" class="bg-white/15 hover:bg-white/25 text-white rounded-xl py-3 font-bold text-sm" aria-label="Reset zoom">Reset</button>
+                <button type="button" onclick="zoomImageIn()" class="bg-white/15 hover:bg-white/25 text-white rounded-xl py-3 font-bold text-sm" aria-label="Zoom in">+ Zoom</button>
+                <button type="button" onclick="closeImageViewer()" class="bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 font-bold text-sm">Close</button>
+            </div>
+            <div class="text-center text-[11px] text-white/60 mt-2">Zoom, then drag the image left/right/up/down. Mouse wheel and phone pinch are also supported.</div>
+        </div>
+    </div>
+
+    <!-- ফুটার সেকশন -->
+    <footer class="bg-gray-900 text-gray-300 text-center py-4 border-t border-gray-800">
+        <p class="text-sm font-medium tracking-wide">
+            Copyright &copy; 2026 by Rudranshi. All Rights Reserved.
         </p>
-</footer>
-<script>
+    </footer>
+
+    <script>
 
 /* Permanent public Customer API via Tailscale Funnel.
    A QR URL with ?api=... can still override this value. */
@@ -1713,13 +1767,27 @@ const _wamp=RMPWampCustomer.createClient();
         const qrTableContext = (function(){
             try{
                 const p=new URLSearchParams(window.location.search);
-                const raw=String(p.get('qr_table')||p.get('qrTable')||p.get('table')||p.get('table_id')||'').trim().toUpperCase();
+                const raw=String(
+                    p.get('qr_table') ||
+                    p.get('qrTable') ||
+                    p.get('table') ||
+                    p.get('table_id') ||
+                    ''
+                ).trim().toUpperCase();
                 if(!/^[ABC]\d{1,2}$/.test(raw)) return null;
                 const n=Number(raw.slice(1));
                 if(n<1 || n>30) return null;
                 const prefix=raw.charAt(0);
-                const section=prefix==='B'?'outdoor':prefix==='C'?'first_floor':'indoor';
-                return {table:raw,section};
+                const urlSection=String(p.get('section')||'').trim().toLowerCase();
+                const section=urlSection==='outdoor'?'outdoor'
+                    :urlSection==='first_floor'?'first_floor'
+                    :(prefix==='B'?'outdoor':prefix==='C'?'first_floor':'indoor');
+                return {
+                    table:raw,
+                    section:section,
+                    legacy:!p.get('qr_table') && !p.get('qrTable'),
+                    qrKey:String(p.get('qr_key')||'').trim()
+                };
             }catch(e){return null;}
         })();
 
@@ -3550,6 +3618,7 @@ h1{font-family:"Times New Roman",serif;font-size:25px;margin:0;font-weight:900}
 
         function openChat() { alert('Live chat feature coming soon!'); }
     </script>
+
 <script id="customer-add-more-request-final">
 (function(){
   const originalSubmitOrder=window.submitOrder;
@@ -3622,6 +3691,7 @@ h1{font-family:"Times New Roman",serif;font-size:25px;margin:0;font-weight:900}
   };
 })();
 </script>
+
 <style id="final-customer-description-note-style">
 .customer-item-description{font-size:.76rem;line-height:1.05rem;color:#64748b;margin:.25rem 0 .55rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .cart-note-input,.checkout-note-input{width:100%;background:#111827;color:#fff;border:2px solid #111827;border-radius:10px;padding:8px 10px;font-size:12px;outline:none}
@@ -3779,6 +3849,8 @@ window.submitOrder = async function(){
   return _oldCustomerSubmitOrder.apply(this,arguments);
 };
 </script>
+
+
 <style id="final-description-expand-style">
 .customer-item-description{
   font-size:.86rem!important;
@@ -3852,25 +3924,30 @@ window.submitOrder = async function(){
   #descriptionDetailImageWrap{height:340px}
 }
 </style>
-<div class="hidden fixed inset-0 bg-black/55 z-[10020] p-4 flex items-center justify-center" id="descriptionDetailModal" onclick="if(event.target===this)closeDescriptionDetail()">
-<div class="description-card w-full max-w-lg rounded-2xl overflow-hidden relative">
-<button class="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-black/65 hover:bg-black/80 text-white font-black text-xl shadow-lg" onclick="closeDescriptionDetail()">×</button>
-<div id="descriptionDetailImageWrap" role="button" tabindex="0" title="Click to zoom and pan">
-<img alt="Menu item image" id="descriptionDetailImage" onerror="this.onerror=null;this.src='images/logo.png'" src="images/logo.png"/>
-<div id="descriptionDetailImageHint">🔍 Tap image to Zoom & Pan</div>
+
+<div id="descriptionDetailModal" class="hidden fixed inset-0 bg-black/55 z-[10020] p-4 flex items-center justify-center" onclick="if(event.target===this)closeDescriptionDetail()">
+  <div class="description-card w-full max-w-lg rounded-2xl overflow-hidden relative">
+    <button onclick="closeDescriptionDetail()" class="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-black/65 hover:bg-black/80 text-white font-black text-xl shadow-lg">×</button>
+
+    <div id="descriptionDetailImageWrap" role="button" tabindex="0" title="Click to zoom and pan">
+      <img id="descriptionDetailImage" src="images/logo.png" alt="Menu item image" onerror="this.onerror=null;this.src='images/logo.png'">
+      <div id="descriptionDetailImageHint">🔍 Tap image to Zoom & Pan</div>
+    </div>
+
+    <div class="flex items-center gap-3 px-5 pt-4 pb-3 border-b bg-white">
+      <div class="min-w-0 flex-1">
+        <h3 id="descriptionDetailTitle" class="text-xl font-extrabold text-slate-900 leading-tight"></h3>
+        <div id="descriptionDetailOriginalName" class="hidden mt-1 text-sm font-semibold text-slate-500 leading-tight"></div>
+        <div class="text-xs font-bold text-amber-600 mt-2">ITEM DESCRIPTION</div>
+      </div>
+    </div>
+
+    <div class="p-5">
+      <div id="descriptionDetailText"></div>
+    </div>
+  </div>
 </div>
-<div class="flex items-center gap-3 px-5 pt-4 pb-3 border-b bg-white">
-<div class="min-w-0 flex-1">
-<h3 class="text-xl font-extrabold text-slate-900 leading-tight" id="descriptionDetailTitle"></h3>
-<div class="hidden mt-1 text-sm font-semibold text-slate-500 leading-tight" id="descriptionDetailOriginalName"></div>
-<div class="text-xs font-bold text-amber-600 mt-2">ITEM DESCRIPTION</div>
-</div>
-</div>
-<div class="p-5">
-<div id="descriptionDetailText"></div>
-</div>
-</div>
-</div>
+
 <script id="final-description-expand-translate-fix">
 (function(){
   const DESCRIPTION_CACHE_KEY='hameeds_description_translation_cache_v1';
@@ -4021,6 +4098,8 @@ window.submitOrder = async function(){
   };
 })();
 </script>
+
+
 <script id="customer-exact-malaysia-item-time">
 function getMalaysiaSqlTimestamp(){
   const p=new Intl.DateTimeFormat('en-CA',{
@@ -4032,6 +4111,8 @@ function getMalaysiaSqlTimestamp(){
   return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}`;
 }
 </script>
+
+
 <script id="place-order-runtime-fix">
 (function(){
   const oldAlert = window.alert;
@@ -4063,11 +4144,15 @@ function getMalaysiaSqlTimestamp(){
   if (modal) observer.observe(modal,{attributes:true,attributeFilter:['class']});
 })();
 </script>
+
+
 <style id="image-viewer-front-layer-fix">
 #imageModal{
   z-index:20050 !important;
 }
 </style>
+
+
 <style id="video-style-category-scroll-fix">
   /* Reference-video behaviour:
      the category selector reaches the top, then stays fixed;
@@ -4097,6 +4182,7 @@ function getMalaysiaSqlTimestamp(){
     scroll-margin-top:86px;
   }
 </style>
+
 <script id="video-style-category-scroll-fix-js">
 (function(){
   let categoryNaturalTop = 0;
@@ -4941,6 +5027,8 @@ function getMalaysiaSqlTimestamp(){
   },250);
 })();
 </script>
+
+
 <script id="customer-ordering-mode-control">
 (function(){
   'use strict';
@@ -5054,6 +5142,8 @@ function getMalaysiaSqlTimestamp(){
   setTimeout(loadCustomerOrderingMode,250);
 })();
 </script>
+
+
 <script id="home-top15-slideshow-controller">
 (function(){
   let homeSlideIndex=0, homeSlideTimer=null, homeSlides=[];
@@ -5299,6 +5389,8 @@ function getMalaysiaSqlTimestamp(){
   });
 })();
 </script>
+
+
 <script id="customer-modifier-price-display-final">
 (function(){
   // Keep old saved carts compatible.
@@ -5311,6 +5403,7 @@ function getMalaysiaSqlTimestamp(){
   });
 })();
 </script>
+
 <script id="rmp-wamp-customer-final">
 (function(){
   'use strict';
@@ -5378,19 +5471,75 @@ function getMalaysiaSqlTimestamp(){
     finally{if(btn){btn.dataset.submitting='0';btn.disabled=false;btn.classList.remove('opacity-60','cursor-not-allowed');}}
   };
 
-
-
   async function verifyAndOpenQrTable(){
     if(typeof qrTableContext==='undefined'||!qrTableContext)return;
-    const p=new URLSearchParams(location.search),key=String(p.get('key')||p.get('token')||'').trim();
-    if(!key){alert('This table QR is incomplete. Please scan the QR sticker on the table again.');return;}
+
+    const p=new URLSearchParams(location.search);
+    const key=String(p.get('key')||p.get('token')||'').trim();
+    const qrKey=String(p.get('qr_key')||'').trim();
+
     try{
-      const x=await RMPWampCustomer.request('/table/resolve?table='+encodeURIComponent(qrTableContext.table)+'&key='+encodeURIComponent(key));
-      window.rmpVerifiedQrTable=x;applyQrTableToDineIn();
-      const badge=document.getElementById('qrTableLockBadge');if(badge){badge.textContent=`📱 TABLE ${x.table_id} · QR VERIFIED`;badge.classList.remove('hidden');}
-      setTimeout(()=>{if(document.getElementById('homeView')&&!document.getElementById('homeView').classList.contains('hidden'))startOrder('dine_in');},120);
+      /*
+       * EXISTING PRINTED TABLE QR:
+       *   ?table=A6&section=indoor
+       * This QR is already physically attached to the table.
+       * Do NOT require a new key/token and do NOT replace the QR.
+       */
+      if(qrTableContext.legacy && !key && !qrKey){
+        window.rmpVerifiedQrTable={
+          table_id:qrTableContext.table,
+          section:qrTableContext.section,
+          source:'existing_physical_qr'
+        };
+        applyQrTableToDineIn();
+
+        const badge=document.getElementById('qrTableLockBadge');
+        if(badge){
+          badge.textContent=`📱 TABLE ${qrTableContext.table} · QR LOCKED`;
+          badge.classList.remove('hidden');
+        }
+
+        setTimeout(()=>{
+          const home=document.getElementById('homeView');
+          if(home && !home.classList.contains('hidden')) startOrder('dine_in');
+        },120);
+        return;
+      }
+
+      /*
+       * NEW ADMIN QR:
+       *   ?qr_table=A1&qr_key=...
+       * Keep its verification path.
+       */
+      const verifyKey=qrKey || key;
+      if(!verifyKey){
+        throw new Error('This QR does not contain a valid table key.');
+      }
+
+      const x=await RMPWampCustomer.request(
+        '/table/resolve?table='+encodeURIComponent(qrTableContext.table)+
+        '&key='+encodeURIComponent(verifyKey)
+      );
+
+      window.rmpVerifiedQrTable=x;
+      applyQrTableToDineIn();
+
+      const badge=document.getElementById('qrTableLockBadge');
+      if(badge){
+        badge.textContent=`📱 TABLE ${x.table_id} · QR VERIFIED`;
+        badge.classList.remove('hidden');
+      }
+
+      setTimeout(()=>{
+        const home=document.getElementById('homeView');
+        if(home && !home.classList.contains('hidden')) startOrder('dine_in');
+      },120);
+
     }catch(e){
-      const box=document.createElement('div');box.className='fixed inset-x-3 top-3 z-[99999] bg-red-600 text-white rounded-xl shadow-2xl p-4 text-sm font-bold text-center';box.textContent='Invalid table QR or RMP POS customer server unavailable: '+(e.message||e);document.body.appendChild(box);
+      const box=document.createElement('div');
+      box.className='fixed inset-x-3 top-3 z-[99999] bg-red-600 text-white rounded-xl shadow-2xl p-4 text-sm font-bold text-center';
+      box.textContent='Invalid table QR or RMP POS customer server unavailable: '+(e.message||e);
+      document.body.appendChild(box);
     }
   }
   window.addEventListener('DOMContentLoaded',()=>{
@@ -5399,6 +5548,8 @@ function getMalaysiaSqlTimestamp(){
   });
 })();
 </script>
+
+
 <script id="rmp-guest-direct-qr-v21-final">
 (function(){
   'use strict';
@@ -5452,29 +5603,12 @@ function getMalaysiaSqlTimestamp(){
   }
 
   window.rmpCheckoutSectionChanged=function(){
-    if(typeof qrTableContext!=='undefined' && qrTableContext){
-      const s=document.getElementById('checkoutSectionSelect');
-      const t=document.getElementById('checkoutTableSelect');
-      if(s)s.value=qrTableContext.section;
-      fillCheckoutTables(qrTableContext.section,qrTableContext.table);
-      if(t)t.value=qrTableContext.table;
-      if(s)s.disabled=true;
-      if(t)t.disabled=true;
-      checkoutSummary();
-      return;
-    }
     const section=document.getElementById('checkoutSectionSelect')?.value||'indoor';
     fillCheckoutTables(section,'');
     const c=document.getElementById('checkoutTableConfirmed');if(c)c.checked=false;
     checkoutSummary();saveOrderContextFromCheckout();
   };
   window.rmpCheckoutTableChanged=function(){
-    if(typeof qrTableContext!=='undefined' && qrTableContext){
-      const t=document.getElementById('checkoutTableSelect');
-      if(t)t.value=qrTableContext.table;
-      checkoutSummary();
-      return;
-    }
     const c=document.getElementById('checkoutTableConfirmed');if(c)c.checked=false;
     checkoutSummary();saveOrderContextFromCheckout();
   };
@@ -5506,12 +5640,6 @@ function getMalaysiaSqlTimestamp(){
       const section=sectionForTable(table);
       const s=document.getElementById('checkoutSectionSelect');if(s)s.value=section;
       fillCheckoutTables(section,table);
-      if(qrTableContext){
-        const cs=document.getElementById('checkoutSectionSelect');
-        const ct=document.getElementById('checkoutTableSelect');
-        if(cs)cs.disabled=true;
-        if(ct)ct.disabled=true;
-      }
       const confirmed=document.getElementById('checkoutTableConfirmed');if(confirmed)confirmed.checked=false;
       checkoutSummary();
     }else{
@@ -5643,6 +5771,8 @@ function getMalaysiaSqlTimestamp(){
   });
 })();
 </script>
+
+
 <style id="rmp-guest-history-v240-style">
 #sidebar a[onclick*="showOrderHistory"]{display:block!important}
 #rmpGuestHistoryHomeBtn{width:100%;margin-top:.75rem;min-height:52px;font-size:1rem;font-weight:800}
@@ -5742,99 +5872,92 @@ function getMalaysiaSqlTimestamp(){
 })();
 </script>
 
-<script id="rmp-waiter-global-fix">
-window.callWaiterFromTable = async function () {
-    var table = "";
-    try {
-        var ctx = window.qrTableContext;
-        if (ctx && ctx.table) table = String(ctx.table).toUpperCase();
-    } catch (e) {}
+
+<script id="existing-qr-waiter-call">
+window.callWaiterFromExistingQr = async function () {
+    var ctx = null;
+    try { ctx = window.rmpVerifiedQrTable || window.qrTableContext; } catch (e) {}
+
+    var table = ctx && (ctx.table_id || ctx.table) ? String(ctx.table_id || ctx.table).toUpperCase() : "";
 
     if (!table) {
         try {
-            var params = new URLSearchParams(window.location.search);
+            var p = new URLSearchParams(window.location.search);
             table = String(
-                params.get("qr_table") ||
-                params.get("qrTable") ||
-                params.get("table") ||
-                params.get("table_id") ||
-                ""
+                p.get("qr_table") || p.get("table") || p.get("table_id") || ""
             ).trim().toUpperCase();
         } catch (e) {}
     }
 
     if (!/^[ABC](?:[1-9]|[12][0-9]|30)$/.test(table)) {
-        var bad = document.getElementById("customerCallStatus");
-        if (bad) {
-            bad.textContent = "Please scan the table QR code first.";
-            bad.className = "mt-2 text-sm font-bold rounded-xl px-3 py-2 bg-red-50 text-red-700 border border-red-200";
-            bad.classList.remove("hidden");
-        }
+        alert("Please scan the QR code on the table first.");
         return;
     }
 
-    var button = document.getElementById("customerCallBellBtn");
+    var btn = document.getElementById("customerCallBellBtn");
     var status = document.getElementById("customerCallStatus");
-    if (button && button.disabled) return;
 
-    if (button) {
-        button.disabled = true;
-        button.classList.add("opacity-60", "cursor-not-allowed");
+    if (btn && btn.dataset.sending === "1") return;
+    if (btn) {
+        btn.dataset.sending = "1";
+        btn.disabled = true;
     }
 
     try {
         if (!window.RMPWampCustomer ||
             typeof window.RMPWampCustomer.request !== "function") {
-            throw new Error("Customer API is not available");
+            throw new Error("Customer API is not available.");
         }
 
         var guest = {};
         try {
-            if (typeof readJson === "function" &&
-                typeof GUEST_INFO_KEY !== "undefined") {
-                guest = readJson(GUEST_INFO_KEY, {}) || {};
-            }
+            guest = JSON.parse(
+                localStorage.getItem("hameeds_guest_customer") || "{}"
+            ) || {};
         } catch (e) {}
 
-        var section = "";
-        try {
-            if (typeof sectionForTable === "function") {
-                section = sectionForTable(table);
-            }
-        } catch (e) {}
+        var section = (ctx && ctx.section) ? ctx.section : "indoor";
+        if (table.charAt(0) === "B") section = "outdoor";
+        if (table.charAt(0) === "C") section = "first_floor";
 
-        await window.RMPWampCustomer.request("/customer-calls", {
+        /*
+         * The existing RMP API already exposes customer_calls through
+         * /api/data. No new QR and no new customer database are required.
+         */
+        await window.RMPWampCustomer.request("/api/data", {
             method: "POST",
             body: {
-                table_id: table,
-                section: section,
-                customer_name: guest.name || guest.full_name || null,
-                customer_phone: guest.phone || null,
-                status: "pending",
-                source: "customer_qr"
+                table: "customer_calls",
+                operation: "insert",
+                payload: [{
+                    table_id: table,
+                    section: section,
+                    customer_name: guest.full_name || guest.name || null,
+                    customer_phone: guest.phone || null,
+                    status: "pending"
+                }]
             }
         });
 
         if (status) {
-            status.textContent = "Table " + table + ": waiter has been called.";
-            status.className = "mt-2 text-sm font-bold rounded-xl px-3 py-2 bg-green-50 text-green-700 border border-green-200";
+            status.textContent = "🔔 Table " + table + " — waiter has been called.";
+            status.className =
+                "mt-2 rounded-xl px-3 py-2 text-sm font-bold bg-green-50 text-green-700 border border-green-200";
             status.classList.remove("hidden");
         }
-    } catch (error) {
-        console.error("Waiter call failed:", error);
-        if (status) {
-            status.textContent = "Unable to call the waiter right now. Please try again.";
-            status.className = "mt-2 text-sm font-bold rounded-xl px-3 py-2 bg-red-50 text-red-700 border border-red-200";
-            status.classList.remove("hidden");
-        }
+    } catch (e) {
+        console.error("Customer waiter call failed:", e);
+        alert("Unable to call waiter: " + (e.message || e));
     } finally {
-        if (button) {
+        if (btn) {
             setTimeout(function () {
-                button.disabled = false;
-                button.classList.remove("opacity-60", "cursor-not-allowed");
+                btn.dataset.sending = "0";
+                btn.disabled = false;
             }, 2500);
         }
     }
 };
-</script></body>
+</script>
+
+</body>
 </html>
