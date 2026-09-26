@@ -555,35 +555,84 @@ main{background:transparent!important;}
 #orderView,#historyView{background:transparent!important;}
 </style>
 <script>
-/* RMP POS Cloudflare D1/R2 compatibility layer. Cloudflare D1 removed. */
-(()=>{
-const API='https://pos-menu.prokashofficial-kolkata.workers.dev';
-const TOKEN_KEY='rmp_cf_staff_token';
-const token=()=>localStorage.getItem(TOKEN_KEY)||'';
-async function call(path,opt={}){const h={'Content-Type':'application/json',...(opt.headers||{})};if(token())h['X-RMP-Staff-Token']=token();const r=await fetch(API+path,{...opt,headers:h});let j;try{j=await r.json()}catch{j={ok:false,error:'Invalid API response'}}if(!r.ok) return {data:null,error:{message:j.error||('HTTP '+r.status),code:r.status}};return j;}
-class Q{constructor(t){this.t=t;this.op='select';this.cols='*';this.filters=[];this.orders=[];this.lim=null;this.payload=null;this.mode='many';}
- select(c='*'){this.cols=c;return this} insert(p){this.op='insert';this.payload=p;return this} upsert(p){this.op='upsert';this.payload=p;return this} update(p){this.op='update';this.payload=p;return this} delete(){this.op='delete';return this}
- f(op,c,v,x){this.filters.push({op,column:c,value:v,extra:x});return this} eq(c,v){return this.f('eq',c,v)} neq(c,v){return this.f('neq',c,v)} in(c,v){return this.f('in',c,v)} gte(c,v){return this.f('gte',c,v)} lte(c,v){return this.f('lte',c,v)} ilike(c,v){return this.f('ilike',c,v)} is(c,v){return this.f('is',c,v)} not(c,op,v){return this.f('not',c,v,op)} match(o){Object.entries(o||{}).forEach(([k,v])=>this.eq(k,v));return this}
- order(c,o={}){this.orders.push({column:c,ascending:o.ascending!==false});return this} limit(n){this.lim=n;return this} single(){this.mode='single';return this} maybeSingle(){this.mode='maybeSingle';return this}
- async exec(){
-  const pass=this.filters.find(x=>x.column==='password'&&x.op==='eq'); const email=this.filters.find(x=>x.column==='email'&&x.op==='eq');
-  if(this.op==='select'&&pass&&email&&(this.t==='profiles'||this.t==='customers')){const ep=this.t==='profiles'?'/api/auth/staff-login':'/api/auth/customer-login';const z=await call(ep,{method:'POST',body:JSON.stringify({email:email.value,password:pass.value})});if(z.error)return z;if(z.token&&this.t==='profiles')localStorage.setItem(TOKEN_KEY,z.token);return {data:z.user,error:null};}
-  const z=await call('/api/data',{method:'POST',body:JSON.stringify({table:this.t,operation:this.op,select:this.cols,filters:this.filters,orders:this.orders,limit:this.lim,payload:this.payload,mode:this.mode})});
-  if(z.error)return z;return {data:z.data,error:null,count:z.count};
- }
- then(a,b){return this.exec().then(a,b)}
+/* RMP POS Customer -> WAMP/MySQL bridge.
+   This customer page keeps its existing UI/data code, but all database traffic
+   is routed to the local WAMP customer API instead of Supabase. */
+window.RMP_CUSTOMER_API_URL = window.RMP_CUSTOMER_API_URL || 'https://desktop-k7nplqn.tail4874ea.ts.net';
+const RMP_CUSTOMER_API = String(window.RMP_CUSTOMER_API_URL||'').replace(/\/$/,'');
+
+async function rmpWampFetch(path, options={}) {
+    const headers = {'Content-Type':'application/json', ...(options.headers||{})};
+    const token = String(localStorage.getItem('rmp_customer_auth_token')||'').trim();
+    if(token) headers.Authorization = 'Bearer '+token;
+    const response = await fetch(RMP_CUSTOMER_API + path, {
+        method: options.method || 'GET',
+        headers,
+        body: options.body === undefined ? undefined : JSON.stringify(options.body)
+    });
+    let data={};
+    try{ data=await response.json(); }catch(e){ data={ok:false,error:'Invalid server response'}; }
+    if(!response.ok || data?.ok===false){
+        const err=new Error(data?.error || ('HTTP '+response.status));
+        err.status=response.status;
+        throw err;
+    }
+    return data;
 }
-const storage={from(bucket){return {async upload(path,file){const fd=new FormData();fd.append('file',file);fd.append('path',path);const h={};if(token())h['X-RMP-Staff-Token']=token();const r=await fetch(API+'/api/storage/upload',{method:'POST',headers:h,body:fd});const j=await r.json();return r.ok?{data:j.data,error:null}:{data:null,error:{message:j.error}}},getPublicUrl(path){return {data:{publicUrl:'https://pub-404ee6980d804bcbba9aafdaf936ccb6.r2.dev/'+String(path).replace(/^\/+/, '')}}},async remove(paths){const z=await call('/api/storage/remove',{method:'POST',body:JSON.stringify({paths})});return z.error?z:{data:z.data,error:null}}}}};
-const auth={async signUp({email,password}){return {data:{user:{email}},error:null}},async signOut(){localStorage.removeItem(TOKEN_KEY);return {error:null}}};
-function channel(){let timers=[];let handlers=[];return {on(type,filter,cb){handlers.push({type,filter,cb});return this},subscribe(){const tick=()=>{if(document.visibilityState!=="visible")return;handlers.forEach(h=>{try{h.cb({eventType:"UPDATE",new:{},old:{}})}catch(e){}})};timers.push(setInterval(tick,8000));return this},unsubscribe(){timers.forEach(clearInterval);timers=[];return Promise.resolve()},};}
-window.cloudflareDB={createClient(){return {from:t=>new Q(t),storage,auth,channel,removeChannel:()=>{},removeAllChannels:()=>{}}}};
-})();
+
+class RMPWampQuery {
+    constructor(table){this.table=table;this.op='select';this.columns='*';this.filters=[];this.orders=[];this.limitValue=null;this.mode=null;this.payload=[];this.returnRows=false;}
+    select(columns='*'){this.columns=columns||'*';this.returnRows=true;return this;}
+    eq(column,value){this.filters.push({column,op:'eq',value});return this;}
+    neq(column,value){this.filters.push({column,op:'neq',value});return this;}
+    gte(column,value){this.filters.push({column,op:'gte',value});return this;}
+    lte(column,value){this.filters.push({column,op:'lte',value});return this;}
+    order(column,opts={}){this.orders.push({column,ascending:opts.ascending!==false});return this;}
+    limit(n){this.limitValue=Number(n);return this;}
+    maybeSingle(){this.mode='maybeSingle';return this;}
+    single(){this.mode='single';return this;}
+    insert(rows){this.op='insert';this.payload=Array.isArray(rows)?rows:[rows];return this;}
+    update(row){this.op='update';this.payload=row||{};return this;}
+    async exec(){
+        try{
+            const result=await rmpWampFetch('/api/data',{method:'POST',body:{table:this.table,operation:this.op,select:this.columns,filters:this.filters,orders:this.orders,limit:this.limitValue,payload:this.payload,mode:this.mode,return_rows:this.returnRows}});
+            let data=result?.data??null;
+            if(this.op==='insert' && this.mode==='single') data=Array.isArray(data)?(data[0]||null):data;
+            if(this.op==='insert' && this.mode==='maybeSingle') data=Array.isArray(data)?(data[0]||null):data;
+            return {data,error:null,count:result?.count??(Array.isArray(data)?data.length:(data?1:0))};
+        }catch(error){return {data:null,error:{message:error?.message||String(error)}};}
+    }
+    then(resolve,reject){return this.exec().then(resolve,reject);}
+}
+
+const cloudDB = {
+    from(table){return new RMPWampQuery(table);},
+    auth:{
+        async signUp(){return {data:{user:null},error:null};},
+        async signOut(){localStorage.removeItem('rmp_customer_auth_token');return {error:null};}
+    }
+};
+window.cloudDB = cloudDB;
 </script>
 
-<style id="checkout-hide-category-panel-fix">
-/* During checkout, keep the blue menu header but hide only the category strip. */
-body.checkout-active #categoryContainer {
-  display: none !important;
+
+<style id="schedule-out-of-schedule-style">
+.out-of-schedule-action{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:52px;
+    padding:.65rem .8rem;
+    border-radius:.75rem;
+    border:2px solid #dc2626;
+    background:#fee2e2;
+    color:#b91c1c;
+    font-weight:900;
+    cursor:not-allowed;
+}
+.professional-menu-card.out-of-schedule{
+    opacity:.86;
 }
 </style>
 
@@ -940,8 +989,31 @@ body.checkout-active #categoryContainer {
     </footer>
 
     <script>
-        const CLOUDFLARE_API = 'https://pos-menu.prokashofficial-kolkata.workers.dev';
-        const cloudDB = cloudflareDB.createClient();
+
+// MENU AVAILABILITY RULES: an item whose name ends with @# is permanently unavailable.
+// Database values are stored as 1/0; this helper treats only true/1 as available.
+function menuItemHasUnavailableMarker(item){
+  const name=String(item?.name_en ?? item?.name ?? item?.item_name ?? '').trimEnd();
+  return name.endsWith('@#');
+}
+function menuItemIsAvailable(item){
+  const v=item?.is_available;
+  return v===true || v===1 || v==='1' || v==='true';
+}
+async function enforceMenuAvailabilityMarkers(items, client){
+  const rows=Array.isArray(items)?items:[];
+  const marked=rows.filter(menuItemHasUnavailableMarker);
+  const ids=marked.filter(menuItemIsAvailable).map(x=>x.id).filter(x=>x!==undefined&&x!==null);
+  if(ids.length && client){
+    try{
+      const r=await client.from('menu_items').update({is_available:false}).in('id',ids);
+      if(r?.error) console.warn('Could not mark @# menu items unavailable:',r.error);
+    }catch(e){ console.warn('Could not mark @# menu items unavailable:',e); }
+  }
+  marked.forEach(x=>{x.is_available=false;});
+  return rows;
+}
+
 
         let currentOrderType = 'dine_in';
         let menuItems = [];
@@ -2369,38 +2441,61 @@ main{background:transparent!important;}
                 const d=new Date(); return d.getHours()*60+d.getMinutes();
             }
         }
-        function scheduleTimeMinutes(v){const p=String(v||'').slice(0,5).split(':').map(Number);return (p[0]||0)*60+(p[1]||0);}
+        function scheduleTimeMinutes(v){
+            const p=String(v||'').slice(0,5).split(':').map(Number);
+            return (p[0]||0)*60+(p[1]||0);
+        }
         function scheduleIsOpen(row, nowMin){
+            if(!row || row.enabled===false || String(row.enabled)==='0') return false;
             const a=scheduleTimeMinutes(row.start_time), b=scheduleTimeMinutes(row.end_time);
             if(a===b)return true;
             return a<b ? (nowMin>=a && nowMin<b) : (nowMin>=a || nowMin<b);
         }
-        function isMenuItemVisibleBySchedule(item, schedules){
-            if(!Array.isArray(schedules)||!schedules.length)return true;
-            const own=schedules.find(r=>String(r.scope_type||'').toLowerCase()==='item' && String(r.menu_item_id)===String(item.id));
-            const cat=schedules.find(r=>String(r.scope_type||'').toLowerCase()==='category' && String(r.category_name||'')===String(item.category||''));
-            const rule=own||cat;
-            return !rule || scheduleIsOpen(rule,malaysiaClockMinutes());
+        function getMenuScheduleRule(item,schedules){
+            if(!Array.isArray(schedules)||!schedules.length)return null;
+            const own=schedules.find(r=>
+                String(r.scope_type||'').toLowerCase()==='item' &&
+                String(r.menu_item_id)===String(item.id)
+            );
+            const cat=schedules.find(r=>
+                String(r.scope_type||'').toLowerCase()==='category' &&
+                String(r.category_name||'')===String(item.category||'')
+            );
+            return own||cat||null;
+        }
+        function isMenuItemOutOfSchedule(item,schedules){
+            const rule=getMenuScheduleRule(item,schedules);
+            return !!rule && !scheduleIsOpen(rule,malaysiaClockMinutes());
+        }
+        function isMenuItemVisibleBySchedule(item,schedules){
+            // Keep the item visible so the customer can see "Out of Schedule".
+            return true;
         }
 
         async function fetchMenu() {
-            console.log("Fetching menu from Cloudflare D1...");
+            console.log("Fetching menu from WAMP/MySQL...");
             const [{ data, error }, scheduleResult] = await Promise.all([
                 cloudDB.from('menu_items').select('*'),
-                cloudDB.from('menu_schedules').select('*').eq('enabled', true)
+                cloudDB.from('menu_schedules').select('*')
             ]);
-            const activeMenuSchedules = scheduleResult?.error ? [] : (scheduleResult?.data || []);
+            const allMenuSchedules = scheduleResult?.error ? [] : (scheduleResult?.data || []);
             if (scheduleResult?.error) console.warn('Menu schedule load skipped:', scheduleResult.error.message);
-            
+
             if (error) {
-                console.error('Cloudflare D1 Fetch Error Details:', error);
+                console.error('WAMP/MySQL Menu Fetch Error:', error);
                 alert('Menu load failed! Error: ' + error.message);
                 return;
             }
-            
+
             console.log('Fetched Menu Data:', data);
+            const nowMin=malaysiaClockMinutes();
             menuItems = (data || [])
-                .filter(item => item.is_available !== false && isMenuItemVisibleBySchedule(item, activeMenuSchedules))
+                .filter(item => menuItemIsAvailable(item) && !menuItemHasUnavailableMarker(item))
+                .map(item => ({
+                    ...item,
+                    _out_of_schedule: isMenuItemOutOfSchedule(item, allMenuSchedules),
+                    _schedule_rule: getMenuScheduleRule(item, allMenuSchedules)
+                }))
                 .sort((a, b) =>
                     (Number(a.category_sort_order)||999999)-(Number(b.category_sort_order)||999999) ||
                     String(a.category || '').localeCompare(String(b.category || ''), undefined, { numeric: true, sensitivity: 'base' }) ||
@@ -2409,8 +2504,6 @@ main{background:transparent!important;}
                 );
             renderCategories();
 
-            // Top 15 is calculated automatically from real sales in orders/order_items.
-            // It does not depend on menu_items.is_popular.
             await loadTopSellingItems();
 
             if (currentLang !== 'en') {
@@ -3622,24 +3715,10 @@ main{background:transparent!important;}
             const cleanName=String(fullName||'').trim();
             const cleanPhone=normalizeCustomerPhone(phone);
             if(!cleanName||!cleanPhone)return null;
-            let q=await cloudDB.from('customers').select('*').eq('phone',cleanPhone).limit(1);
-            let row=(q.data||[])[0]||null;
-            if(row){
-                if(String(row.full_name||'')!==cleanName){
-                    const u=await cloudDB.from('customers').update({full_name:cleanName}).eq('id',row.id).select().maybeSingle();
-                    if(!u.error&&u.data)row=u.data;
-                }
-            }else{
-                let ins=await cloudDB.from('customers').insert([{full_name:cleanName,phone:cleanPhone}]).select().single();
-                if(ins.error){
-                    // Compatibility fallback if this older customers table requires email/password.
-                    const digits=cleanPhone.replace(/\D/g,'')||Date.now();
-                    ins=await cloudDB.from('customers').insert([{full_name:cleanName,phone:cleanPhone,email:`guest_${digits}@hameeds.local`,password:`guest-${digits}`}]).select().single();
-                }
-                if(ins.error)throw ins.error;
-                row=ins.data;
-            }
-            localStorage.setItem('hameeds_guest_customer',JSON.stringify({id:row?.id??null,full_name:cleanName,phone:cleanPhone}));
+            const x=await rmpWampFetch('/customer/guest-profile',{method:'POST',body:{full_name:cleanName,phone:cleanPhone}});
+            if(x?.token)localStorage.setItem('rmp_customer_auth_token',x.token);
+            const row=x?.customer||null;
+            localStorage.setItem('hameeds_guest_customer',JSON.stringify({id:row?.id??null,full_name:row?.full_name||cleanName,phone:row?.phone||cleanPhone,email:row?.email||null}));
             return row;
         }
 
@@ -3691,16 +3770,23 @@ main{background:transparent!important;}
             if(btn?.dataset.sending==='1')return;
             if(btn)btn.dataset.sending='1';
             try{
-                const {error}=await cloudDB.from('customer_calls').insert([{
-                    table_id:table,section:section,
-                    customer_name:saved?.full_name||null,
-                    customer_phone:saved?.phone||null,status:'pending'
-                }]);
-                if(error)throw error;
-                showRestaurantBellSuccess(table);
+                const qrTable = String(qrTableContext?.table || table || '').trim().toUpperCase();
+                if(qrTableContext && qrTable !== qrTableContext.table){
+                    throw new Error('This QR is locked to Table '+qrTableContext.table+'.');
+                }
+                if(!/^[ABC](?:[1-9]|[12][0-9]|30)$/.test(qrTable)){
+                    throw new Error('Please scan the QR code on the table first.');
+                }
+                const x=await rmpWampFetch('/waiter/call',{method:'POST',body:{
+                    table_id:qrTable,
+                    full_name:saved?.full_name || loggedInCustomer?.full_name || null,
+                    customer_phone:saved?.phone || loggedInCustomer?.phone || document.getElementById('checkoutPhone')?.value || null
+                }});
+                if(x?.duplicate) showRestaurantBellSuccess(qrTable);
+                else showRestaurantBellSuccess(qrTable);
             }catch(e){
-                alert('Unable to call cashier. Please make sure the Customer Call SQL has been run.');
-                console.error('Customer call failed:',e);
+                alert('Unable to call waiter: '+(e?.message||String(e)));
+                console.error('Customer waiter call failed:',e);
             }finally{
                 if(btn)setTimeout(()=>{btn.dataset.sending='0'},2500);
             }
@@ -3741,21 +3827,16 @@ main{background:transparent!important;}
             if(btn?.dataset.lookup==='1')return;
             if(btn)btn.dataset.lookup='1';
             try{
-                // Rule: latest unfinished customer order wins. This prevents an old QR/table
-                // from sending a call after the customer has ordered from a newer table.
-                const activeOrder=await getLatestActiveCustomerOrderForBell();
-                if(activeOrder){
-                    await sendCashierCallForTable(activeOrder.table_id,activeOrder.section||tableSectionFromTable(activeOrder.table_id));
+                // A physical QR is authoritative. Never ask the customer to choose
+                // another table and never replace the scanned table with an old order.
+                if(qrTableContext){
+                    await sendCashierCallForTable(qrTableContext.table,qrTableContext.section);
                     return;
                 }
-
-                // No active order: do NOT reuse yesterday's QR/session table.
-                // Ask the customer for the current table.
                 openBellTableSelector();
             }catch(e){
-                console.error('Active order lookup failed:',e);
-                // Safe fallback: ask rather than sending to a possibly stale table.
-                openBellTableSelector();
+                console.error('Waiter call failed:',e);
+                alert(e?.message||'Please scan the table QR again.');
             }finally{
                 if(btn)btn.dataset.lookup='0';
             }
@@ -3989,69 +4070,41 @@ main{background:transparent!important;}
         }
 
         async function registerCustomer() {
-    const full_name = document.getElementById('regName').value;
-    const phone = document.getElementById('regPhone').value;
-    const email = document.getElementById('regEmail').value;
+    const full_name = document.getElementById('regName').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
-
-    // ১. প্রথমে Cloudflare D1 Auth-এ ইউজার রেজিস্টার করুন
-    const { data: authData, error: authError } = await cloudDB.auth.signUp({
-        email: email,
-        password: password
-    });
-
-    if (authError) {
-        alert('Authentication failed: ' + authError.message);
-        return;
-    }
-
-    // ২. সফলভাবে Auth-এ তৈরি হলে আপনার custom 'customers' টেবিলে সেভ করুন
-    const { error: dbError } = await cloudDB.from('customers').insert([{ 
-        full_name, 
-        phone, 
-        email, 
-        password 
-    }]);
-
-    if(dbError) { 
-        alert('Database save failed: ' + dbError.message); 
-        return; 
-    }
-
-    alert('Registration successful! Please login.');
-    toggleAuthMode('login');
+    try{
+        const x=await rmpWampFetch('/customer/register',{method:'POST',body:{full_name,phone,email,password}});
+        if(x?.token)localStorage.setItem('rmp_customer_auth_token',x.token);
+        loggedInCustomer=x?.customer||null;
+        localStorage.setItem('hameeds_customer',JSON.stringify(loggedInCustomer||{}));
+        updateLoginUI();
+        alert('Registration successful!');
+        toggleAuthMode('login');
+    }catch(e){alert('Registration failed: '+(e?.message||String(e)));}
         }
-        
-
 
         async function loginCustomer() {
-    const email = document.getElementById('loginEmail').value;
+    const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
+    try{
+        const x=await rmpWampFetch('/customer/login',{method:'POST',body:{email,password}});
+        if(x?.token)localStorage.setItem('rmp_customer_auth_token',x.token);
+        loggedInCustomer=x?.customer||null;
+        localStorage.setItem('hameeds_customer',JSON.stringify(loggedInCustomer||{}));
+        updateLoginUI();
+        closeLoginModal();
+        alert('Login successful!');
+    }catch(e){alert('Invalid email or password.');}
+        }
 
-    // সরাসরি customers টেবিল থেকে ইমেল ও পাসওয়ার্ড চেক করুন
-    const { data, error } = await cloudDB
-        .from('customers')
-        .select('*')
-        .eq('email', email)
-        .eq('password', password)
-        .single();
-
-    if(error || !data) { 
-        alert('Invalid email or password.'); 
-        return; 
-    }
-
-    loggedInCustomer = data;
-    localStorage.setItem('hameeds_customer', JSON.stringify(data));
-    updateLoginUI();
-    closeLoginModal();
-    alert('Login successful!');
-}
 
 
         function logoutCustomer() {
             loggedInCustomer = null;
             localStorage.removeItem('hameeds_customer');
+            localStorage.removeItem('rmp_customer_auth_token');
             updateLoginUI();
             showHome();
             alert('Logged out successfully.');
@@ -4096,18 +4149,15 @@ main{background:transparent!important;}
       modifierNote:i.modifierNote||''
     }));
 
-    const payload={
-      order_id:targetId,
-      customer_id:loggedInCustomer?.id??null,
-      table_id:order.table_id||order.table_no||'N/A',
-      /* MySQL JSON column: send valid JSON text */
-      items:JSON.stringify(requestItems),
-      status:'pending'
-    };
-    const {error:reqError}=await cloudDB.from('order_item_add_requests').insert([payload]);
-    if(reqError){
-      alert('Could not send Add More Item request: '+reqError.message);
-      return;
+    // Add More Item goes through the WAMP customer endpoint.
+    // The server validates the items and stores a valid JSON value in
+    // order_item_add_requests.items. This avoids MySQL JSON parsing errors.
+    const addMoreResult=await rmpWampFetch('/orders/'+encodeURIComponent(String(targetId))+'/add-more',{
+      method:'POST',
+      body:{items:requestItems}
+    });
+    if(!addMoreResult?.ok){
+      throw new Error(addMoreResult?.error||'The Add More Item request could not be sent.');
     }
 
     cart=[];saveCart();updateCartBar();closeCheckoutModal();resetAppendOrderMode();
@@ -6155,10 +6205,12 @@ fetchMenu=async function(){
   ]);
 
   if(menuResult.error){
-    console.error('Cloudflare D1 Fetch Error Details:',menuResult.error);
+    console.error('WAMP/MySQL Fetch Error Details:',menuResult.error);
     alert('Menu load failed! Error: '+menuResult.error.message);
     return;
   }
+
+  await enforceMenuAvailabilityMarkers(menuResult.data||[],cloudDB);
 
   const directSchedules=directResult.error?[]:(directResult.data||[]);
   const groups=groupResult.error?[]:(groupResult.data||[]);
@@ -6173,7 +6225,7 @@ fetchMenu=async function(){
   if(slotResult.error)console.warn('Schedule time windows load skipped:',slotResult.error.message);
 
   menuItems=(menuResult.data||[])
-    .filter(item=>item.is_available!==false)
+    .filter(item=>menuItemIsAvailable(item) && !menuItemHasUnavailableMarker(item))
     .map(item=>{
       // Manual Active/Inactive still controls whether an item exists on Customer page.
       // Scheduling no longer hides the item; it only controls whether the item can be ordered.
@@ -9311,15 +9363,13 @@ body.hameeds-search-keyboard-open #categoryStickySearchPanel{
         : (i.modifiers||[]).map(text=>({text,price:0})),
       modifierNote:i.modifierNote||''
     }));
-    const payload={
-      order_id:Number(order.id),
-      customer_id:guest?.id??order.customer_id??null,
-      table_id:order.table_id||order.table_no||'N/A',
-      items:JSON.stringify(requestItems),
-      status:'pending'
-    };
-    const {error}=await cloudDB.from('order_item_add_requests').insert([payload]);
-    if(error) throw error;
+    const addMoreResult=await rmpWampFetch('/orders/'+encodeURIComponent(String(order.id))+'/add-more',{
+      method:'POST',
+      body:{items:requestItems}
+    });
+    if(!addMoreResult?.ok){
+      throw new Error(addMoreResult?.error||'The Add More Item request could not be sent.');
+    }
   }
 
   function finishExistingOrderAdd(orderId,message){
