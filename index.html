@@ -2477,10 +2477,26 @@ main{background:transparent!important;}
 
         async function fetchMenu() {
             console.log("Fetching menu from WAMP/MySQL...");
-            const [{ data, error }, scheduleResult] = await Promise.all([
-                cloudDB.from('menu_items').select('*'),
-                cloudDB.from('menu_schedules').select('*')
-            ]);
+
+            // Keep Index (5)'s proven menu-loading path: the menu itself is loaded
+            // directly from the Customer API /menu endpoint. This avoids routing
+            // the large menu through the generic /api/data query layer.
+            let data = [];
+            let error = null;
+            try {
+                const menuResult = await rmpWampFetch('/menu');
+                data = Array.isArray(menuResult?.data) ? menuResult.data : [];
+            } catch (e) {
+                error = { message: e?.message || String(e) };
+            }
+
+            // Keep Index (6)'s existing schedule functionality unchanged.
+            let scheduleResult = { data: [], error: null };
+            try {
+                scheduleResult = await cloudDB.from('menu_schedules').select('*');
+            } catch (e) {
+                scheduleResult = { data: [], error: { message: e?.message || String(e) } };
+            }
             const allMenuSchedules = scheduleResult?.error ? [] : (scheduleResult?.data || []);
             if (scheduleResult?.error) console.warn('Menu schedule load skipped:', scheduleResult.error.message);
 
@@ -2491,7 +2507,6 @@ main{background:transparent!important;}
             }
 
             console.log('Fetched Menu Data:', data);
-            const nowMin=malaysiaClockMinutes();
             menuItems = (data || [])
                 .filter(item => menuItemIsAvailable(item) && !menuItemHasUnavailableMarker(item))
                 .map(item => ({
@@ -9679,208 +9694,3 @@ body.checkout-modal-open #categoryContainer{display:none!important;}
 </script>
 </body>
 </html>
-
-
-<!-- FINAL PATCH: QR TABLE A6/etc. MUST STAY LOCKED THROUGH CHECKOUT + PLACE ORDER.
-     This patch is intentionally appended so it does not remove any existing
-     customer UI/features, including Call Waiter / cashier bell. -->
-<style id="rmp-final-qr-table-lock-style">
-  /* Keep the existing Call Waiter button visible on the customer home screen. */
-  #homeWaiterCallWrap{display:block!important;visibility:visible!important;opacity:1!important}
-  #customerCallBellBtn{display:flex!important;visibility:visible!important;opacity:1!important}
-</style>
-
-<script id="rmp-final-qr-table-lock-script">
-(function(){
-  'use strict';
-
-  function validTable(v){
-    const t=String(v||'').trim().toUpperCase();
-    return /^[ABC](?:[1-9]|[12][0-9]|30)$/.test(t) ? t : '';
-  }
-
-  function getQrLock(){
-    try{
-      if(typeof qrTableContext!=='undefined' && qrTableContext?.table){
-        const t=validTable(qrTableContext.table);
-        if(t) return {
-          table:t,
-          section:qrTableContext.section ||
-            (t[0]==='B'?'outdoor':t[0]==='C'?'first_floor':'indoor')
-        };
-      }
-    }catch(e){}
-
-    try{
-      const x=JSON.parse(sessionStorage.getItem('hameeds_session_table_context')||'null');
-      const t=validTable(x?.table);
-      if(t) return {
-        table:t,
-        section:x?.section ||
-          (t[0]==='B'?'outdoor':t[0]==='C'?'first_floor':'indoor')
-      };
-    }catch(e){}
-
-    return null;
-  }
-
-  function enforceQrTable(){
-    const lock=getQrLock();
-    if(!lock) return null;
-
-    window.RMP_QR_LOCKED_TABLE=lock.table;
-    window.RMP_QR_LOCKED_SECTION=lock.section;
-
-    const activeSection=document.getElementById('activeSectionSelect');
-    const activeTable=document.getElementById('activeTableSelect');
-    const checkoutSection=document.getElementById('checkoutSectionSelect');
-    const checkoutTable=document.getElementById('checkoutTableSelect');
-    const badge=document.getElementById('qrTableLockBadge');
-
-    if(activeSection){
-      activeSection.value=lock.section;
-      activeSection.disabled=true;
-    }
-    if(typeof updateActiveTableDropdown==='function' && activeSection && activeTable){
-      try{ updateActiveTableDropdown(); }catch(e){}
-    }
-    if(activeTable){
-      activeTable.value=lock.table;
-      activeTable.disabled=true;
-    }
-
-    if(checkoutSection){
-      checkoutSection.value=lock.section;
-      checkoutSection.disabled=true;
-    }
-    if(checkoutTable){
-      /* Rebuild only if the required QR table option is missing. */
-      if(!Array.from(checkoutTable.options||[]).some(o=>o.value===lock.table)){
-        checkoutTable.innerHTML='';
-        const prefix=lock.table.charAt(0);
-        for(let i=1;i<=30;i++){
-          const o=document.createElement('option');
-          o.value=prefix+i;
-          o.textContent=prefix+i;
-          checkoutTable.appendChild(o);
-        }
-      }
-      checkoutTable.value=lock.table;
-      checkoutTable.disabled=true;
-    }
-
-    const confirmed=document.getElementById('checkoutConfirmedTable');
-    if(confirmed) confirmed.textContent='TABLE '+lock.table;
-
-    if(badge){
-      badge.textContent='📱 QR TABLE: '+lock.table;
-      badge.classList.remove('hidden');
-    }
-
-    return lock;
-  }
-
-  /* Make the QR table authoritative whenever the page enters Dine-In. */
-  const oldStartOrder=window.startOrder;
-  if(typeof oldStartOrder==='function'){
-    window.startOrder=function(type){
-      const lock=getQrLock();
-      const effectiveType=lock ? 'dine_in' : type;
-      const result=oldStartOrder.apply(this,[effectiveType].concat(Array.prototype.slice.call(arguments,1)));
-      if(lock){
-        requestAnimationFrame(enforceQrTable);
-        setTimeout(enforceQrTable,80);
-        setTimeout(enforceQrTable,350);
-      }
-      return result;
-    };
-  }
-
-  /* Checkout can redraw its table dropdown after opening; restore the QR table
-     after every such redraw. */
-  const oldOpenCheckout=window.openCheckoutModal;
-  if(typeof oldOpenCheckout==='function'){
-    window.openCheckoutModal=function(){
-      const result=oldOpenCheckout.apply(this,arguments);
-      const lock=getQrLock();
-      if(lock){
-        requestAnimationFrame(enforceQrTable);
-        setTimeout(enforceQrTable,0);
-        setTimeout(enforceQrTable,120);
-        setTimeout(enforceQrTable,400);
-      }
-      return result;
-    };
-  }
-
-  /* FINAL PLACE-ORDER GUARD.
-     Whatever an earlier script or dropdown redraw did, the actual submit
-     cannot send A1/default when the QR was scanned at A6/Bx/Cx. */
-  const oldFinalSubmit=window.submitOrder;
-  if(typeof oldFinalSubmit==='function'){
-    window.submitOrder=async function(){
-      const lock=getQrLock();
-
-      if(lock){
-        try{
-          /* A physical table QR is authoritative. */
-          currentOrderType='dine_in';
-          enforceQrTable();
-
-          const activeSection=document.getElementById('activeSectionSelect');
-          const activeTable=document.getElementById('activeTableSelect');
-          const checkoutSection=document.getElementById('checkoutSectionSelect');
-          const checkoutTable=document.getElementById('checkoutTableSelect');
-
-          if(activeSection) activeSection.value=lock.section;
-          if(activeTable) activeTable.value=lock.table;
-          if(checkoutSection) checkoutSection.value=lock.section;
-          if(checkoutTable) checkoutTable.value=lock.table;
-
-          /* Keep the actual global/current table context locked too. */
-          window.RMP_QR_LOCKED_TABLE=lock.table;
-          window.RMP_QR_LOCKED_SECTION=lock.section;
-        }catch(e){
-          console.warn('RMP QR table pre-submit lock:',e);
-        }
-      }
-
-      return oldFinalSubmit.apply(this,arguments);
-    };
-  }
-
-  /* If any old handler tries to change the table after the QR was scanned,
-     immediately restore the scanned table. */
-  document.addEventListener('change',function(e){
-    const lock=getQrLock();
-    if(!lock) return;
-
-    if(e.target?.id==='activeSectionSelect' ||
-       e.target?.id==='activeTableSelect' ||
-       e.target?.id==='checkoutSectionSelect' ||
-       e.target?.id==='checkoutTableSelect'){
-      setTimeout(enforceQrTable,0);
-    }
-  },true);
-
-  document.addEventListener('DOMContentLoaded',function(){
-    setTimeout(enforceQrTable,0);
-    setTimeout(enforceQrTable,180);
-    setTimeout(enforceQrTable,600);
-    setTimeout(enforceQrTable,1200);
-  });
-
-  /* Also keep the existing Call Waiter button tied to the same physical QR. */
-  const oldCallCashier=window.callCashierFromTable;
-  if(typeof oldCallCashier==='function'){
-    window.callCashierFromTable=function(){
-      const lock=getQrLock();
-      if(lock){
-        try{ enforceQrTable(); }catch(e){}
-      }
-      return oldCallCashier.apply(this,arguments);
-    };
-  }
-})();
-</script>
-
