@@ -998,7 +998,10 @@ function menuItemHasUnavailableMarker(item){
 }
 function menuItemIsAvailable(item){
   const v=item?.is_available;
-  return v===true || v===1 || v==='1' || v==='true';
+  // Only an explicit 0/false means unavailable. NULL/blank and positive values
+  // remain visible, matching the WAMP menu rule.
+  if(v===false || v===0 || v==='0' || String(v).toLowerCase()==='false') return false;
+  return true;
 }
 async function enforceMenuAvailabilityMarkers(items, client){
   const rows=Array.isArray(items)?items:[];
@@ -3347,7 +3350,30 @@ main{background:transparent!important;}
             tblEl.value=prefix+'1';
             applyCheckoutTableSelection();
         }
-        function applyCheckoutTableSelection(){const section=document.getElementById('checkoutSectionSelect')?.value||'indoor';const table=document.getElementById('checkoutTableSelect')?.value||'';if(!table)return;const mainSection=document.getElementById('activeSectionSelect'),mainTable=document.getElementById('activeTableSelect');if(mainSection){mainSection.disabled=false;mainSection.value=section;}if(typeof updateActiveTableDropdown==='function')updateActiveTableDropdown();if(mainTable){mainTable.disabled=false;mainTable.value=table;}const label=document.getElementById('checkoutConfirmedTable'),summary=document.getElementById('summaryTableLocation');if(label)label.textContent=`TABLE ${table}`;if(summary)summary.textContent=`${section.toUpperCase()} - Table ${table}`;try{sessionStorage.setItem('hameeds_session_table_context',JSON.stringify({table,section,source:'manual',saved_at:new Date().toISOString()}));}catch(e){}}
+        function applyCheckoutTableSelection(){
+            let section=document.getElementById('checkoutSectionSelect')?.value||'indoor';
+            let table=document.getElementById('checkoutTableSelect')?.value||'';
+            // A physical QR sticker is permanently bound to its table. Never let
+            // checkout/default A1 logic overwrite that table at the last moment.
+            if(currentOrderType==='dine_in' && qrTableContext){
+                section=qrTableContext.section;
+                table=qrTableContext.table;
+                const sec=document.getElementById('checkoutSectionSelect');
+                const tbl=document.getElementById('checkoutTableSelect');
+                if(sec)sec.value=section;
+                if(tbl){tbl.value=table;tbl.disabled=true;}
+                if(sec)sec.disabled=true;
+            }
+            if(!table)return;
+            const mainSection=document.getElementById('activeSectionSelect'),mainTable=document.getElementById('activeTableSelect');
+            if(mainSection){mainSection.value=section;mainSection.disabled=!!qrTableContext;}
+            if(typeof updateActiveTableDropdown==='function')updateActiveTableDropdown();
+            if(mainTable){mainTable.value=table;mainTable.disabled=!!qrTableContext;}
+            const label=document.getElementById('checkoutConfirmedTable'),summary=document.getElementById('summaryTableLocation');
+            if(label)label.textContent=`TABLE ${table}`;
+            if(summary)summary.textContent=`${section.toUpperCase()} - Table ${table}`;
+            if(!qrTableContext){try{sessionStorage.setItem('hameeds_session_table_context',JSON.stringify({table,section,source:'manual',saved_at:new Date().toISOString()}));}catch(e){}}
+        }
 
         function forceInitCheckoutTableNow(sectionWanted, tableWanted){
             const secEl=document.getElementById('checkoutSectionSelect');
@@ -3460,8 +3486,8 @@ main{background:transparent!important;}
                     const tblEl=document.getElementById('checkoutTableSelect');
                     if(!secEl || !tblEl)return;
 
-                    let section=secEl.value || document.getElementById('activeSectionSelect')?.value || 'indoor';
-                    let wanted=String(document.getElementById('activeTableSelect')?.value || qrTableContext?.table || '').trim().toUpperCase();
+                    let section=qrTableContext?.section || secEl.value || document.getElementById('activeSectionSelect')?.value || 'indoor';
+                    let wanted=String(qrTableContext?.table || document.getElementById('activeTableSelect')?.value || '').trim().toUpperCase();
 
                     // Keep section consistent with a valid current/QR table.
                     if(/^[ABC]\d{1,2}$/.test(wanted)){
@@ -3490,9 +3516,10 @@ main{background:transparent!important;}
                     if(big)big.textContent='TABLE '+selected;
                     const mainSec=document.getElementById('activeSectionSelect');
                     const mainTbl=document.getElementById('activeTableSelect');
-                    if(mainSec){mainSec.disabled=false;mainSec.value=section;}
+                    if(mainSec){mainSec.value=section;mainSec.disabled=!!qrTableContext;}
                     if(typeof updateActiveTableDropdown==='function')updateActiveTableDropdown();
-                    if(mainTbl){mainTbl.disabled=false;mainTbl.value=selected;}
+                    if(mainTbl){mainTbl.value=selected;mainTbl.disabled=!!qrTableContext;}
+                    if(qrTableContext){secEl.disabled=true;tblEl.disabled=true;}
                 },0);
             }
 
@@ -3969,9 +3996,14 @@ main{background:transparent!important;}
             let tableId = 'TAKEAWAY-' + Math.floor(1000 + Math.random() * 9000);
 
             if(currentOrderType === 'dine_in') {
-                applyCheckoutTableSelection();
-                section = document.getElementById('checkoutSectionSelect')?.value || document.getElementById('activeSectionSelect').value;
-                tableId = document.getElementById('checkoutTableSelect')?.value || document.getElementById('activeTableSelect').value;
+                if(qrTableContext){
+                    section = qrTableContext.section;
+                    tableId = qrTableContext.table;
+                }else{
+                    applyCheckoutTableSelection();
+                    section = document.getElementById('checkoutSectionSelect')?.value || document.getElementById('activeSectionSelect').value;
+                    tableId = document.getElementById('checkoutTableSelect')?.value || document.getElementById('activeTableSelect').value;
+                }
                 if(!tableId){
                     alert('Please select your table number.');
                     if(placeOrderBtn){placeOrderBtn.dataset.submitting='0';placeOrderBtn.disabled=false;placeOrderBtn.classList.remove('opacity-60','cursor-not-allowed');}
