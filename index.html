@@ -9679,24 +9679,3 @@ body.checkout-modal-open #categoryContainer{display:none!important;}
 </script>
 </body>
 </html>
-
-<script id="hameeds-final-safe-customer-fixes">
-(function(){'use strict';
-function hideHeaderSearch(){const el=document.getElementById('headerMenuSearch');if(el){el.classList.add('hidden');el.style.display='none';el.setAttribute('aria-hidden','true');}}
-hideHeaderSearch();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hideHeaderSearch,{once:true});
-function keepScannedTableLocked(){try{if(typeof qrTableContext==='undefined'||!qrTableContext)return;const s=document.getElementById('activeSectionSelect'),t=document.getElementById('activeTableSelect');if(s){s.value=qrTableContext.section;s.disabled=true;}if(typeof updateActiveTableDropdown==='function')updateActiveTableDropdown();if(t){t.value=qrTableContext.table;t.disabled=true;}const cs=document.getElementById('checkoutSectionSelect'),ct=document.getElementById('checkoutTableSelect');if(cs){cs.value=qrTableContext.section;cs.disabled=true;}if(ct){ct.value=qrTableContext.table;ct.disabled=true;}}catch(e){console.warn('QR table lock:',e)}}
-window.keepScannedTableLocked=keepScannedTableLocked;
-function getCurrentMenuItem(id){const n=Number(id);const list=(typeof menuItems!=='undefined'&&Array.isArray(menuItems))?menuItems:(window.menuItems||[]);return list.find(x=>Number(x.id)===n)||null;}
-function priceForCurrentOrderType(item){if(!item)return 0;if(typeof currentOrderType!=='undefined'&&currentOrderType==='takeaway'&&item.takeaway_price!=null&&item.takeaway_price!==''){const p=Number(item.takeaway_price);if(Number.isFinite(p))return p;}const p=Number(item.dine_in_price!=null?item.dine_in_price:item.price);return Number.isFinite(p)?p:0;}
-function syncCustomerMenuButtons(){const c=document.getElementById('menuContainer');if(!c)return;c.querySelectorAll('.add-cart-btn[data-add-id]').forEach(btn=>{const item=getCurrentMenuItem(btn.dataset.addId);if(!item)return;const out=item._out_of_schedule===true;if(out){btn.disabled=true;btn.setAttribute('aria-disabled','true');btn.dataset.addPrice='0';btn.textContent='⏰ Out of Schedule';btn.classList.add('opacity-60','cursor-not-allowed');return;}const p=priceForCurrentOrderType(item);btn.disabled=false;btn.removeAttribute('aria-disabled');btn.dataset.addPrice=String(p);btn.classList.remove('opacity-60','cursor-not-allowed');const lang=(typeof currentLang!=='undefined'?currentLang:'en');const labels={ms:'Tambah ke Troli',bn:'কার্টে যোগ করুন',hi:'कार्ट में जोड़ें',ta:'கார்ட்டில் சேர்',ar:'أضف إلى السلة',zh:'加入购物车'};btn.textContent=lang==='en'?'Add to Cart':(labels[lang]||'Add to Cart');});keepScannedTableLocked();}
-window.syncCustomerMenuButtons=syncCustomerMenuButtons;
-const previousAdd=window.addToCart;if(typeof previousAdd==='function'){window.addToCart=function(itemId){const item=getCurrentMenuItem(itemId);if(!item)return;if(item._out_of_schedule===true){if(typeof showToast==='function')showToast('This item is currently out of schedule.');else alert('This item is currently out of schedule.');return;}return previousAdd.call(this,Number(itemId),priceForCurrentOrderType(item));};try{addToCart=window.addToCart}catch(e){}}
-const oldRenderMenu=window.renderMenu;if(typeof oldRenderMenu==='function'){window.renderMenu=function(){const r=oldRenderMenu.apply(this,arguments);requestAnimationFrame(syncCustomerMenuButtons);return r;};try{renderMenu=window.renderMenu}catch(e){}}
-const oldRenderTop=window.renderTopPopular;if(typeof oldRenderTop==='function'){window.renderTopPopular=function(){const r=oldRenderTop.apply(this,arguments);requestAnimationFrame(syncCustomerMenuButtons);return r;};try{renderTopPopular=window.renderTopPopular}catch(e){}}
-const mc=document.getElementById('menuContainer');if(mc&&window.MutationObserver){let queued=false;new MutationObserver(function(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;syncCustomerMenuButtons();});}).observe(mc,{childList:true,subtree:true});}
-const oldStart=window.startOrder;if(typeof oldStart==='function'){window.startOrder=function(type){const r=oldStart.apply(this,arguments);requestAnimationFrame(function(){hideHeaderSearch();syncCustomerMenuButtons();if(String(type)==='dine_in')keepScannedTableLocked();});return r;};try{startOrder=window.startOrder}catch(e){}}
-const oldCheckout=window.openCheckoutModal;if(typeof oldCheckout==='function'){window.openCheckoutModal=function(){const r=oldCheckout.apply(this,arguments);Promise.resolve(r).finally(function(){if(typeof currentOrderType!=='undefined'&&currentOrderType==='dine_in')keepScannedTableLocked();});return r;};try{openCheckoutModal=window.openCheckoutModal}catch(e){}}
-hideHeaderSearch();setTimeout(function(){hideHeaderSearch();syncCustomerMenuButtons();},100);setTimeout(function(){hideHeaderSearch();syncCustomerMenuButtons();},500);
-})();
-</script>
-
