@@ -2492,10 +2492,13 @@ main{background:transparent!important;}
 
             console.log('Fetched Menu Data:', data);
             const nowMin=malaysiaClockMinutes();
+            // CUSTOMER MENU: load EVERY row from menu_items so no database item
+            // or category disappears from the customer menu. Availability is kept
+            // separately so unavailable items remain visible without being orderable.
             menuItems = (data || [])
-                .filter(item => menuItemIsAvailable(item) && !menuItemHasUnavailableMarker(item))
                 .map(item => ({
                     ...item,
+                    _item_unavailable: !menuItemIsAvailable(item) || menuItemHasUnavailableMarker(item),
                     _out_of_schedule: isMenuItemOutOfSchedule(item, allMenuSchedules),
                     _schedule_rule: getMenuScheduleRule(item, allMenuSchedules)
                 }))
@@ -4996,9 +4999,12 @@ function getMalaysiaSqlTimestamp(){
     const price=currentOrderType==='takeaway'&&item.takeaway_price!=null
       ?Number(item.takeaway_price):Number(item.dine_in_price||0);
     const outOfSchedule=item._out_of_schedule===true;
+    const unavailable=item._item_unavailable===true;
     const orderAction=outOfSchedule
       ? `<button type="button" class="out-of-schedule-action" disabled aria-disabled="true" title="Out of Schedule">⏰ Out of Schedule</button>`
-      : quantityHtml(item.id,price);
+      : unavailable
+        ? `<button type="button" class="out-of-schedule-action" disabled aria-disabled="true" title="Currently unavailable">🚫 Currently Unavailable</button>`
+        : quantityHtml(item.id,price);
     const itemName=getMenuDisplayName(item);
     const imgSrc=item.image_url||'images/logo.png';
     const soldText=item.sold_quantity
@@ -5008,7 +5014,7 @@ function getMalaysiaSqlTimestamp(){
       :(item.item_description||window.itemDescriptionMap?.[String(item.id)]||'');
 
     return `<div class="professional-menu-card ${outOfSchedule?'out-of-schedule':''} bg-white rounded-xl shadow p-4 flex justify-between items-center relative border border-gray-100"
-      data-menu-item-id="${Number(item.id)}" data-out-of-schedule="${outOfSchedule?'1':'0'}">
+      data-menu-item-id="${Number(item.id)}" data-out-of-schedule="${outOfSchedule?'1':'0'}" data-item-unavailable="${unavailable?'1':'0'}">
       <div class="flex-1 pr-3 min-w-0">
         <h3 class="menu-item-title font-bold text-gray-800 text-base mb-1">
           ${dualItemNameHtml(
