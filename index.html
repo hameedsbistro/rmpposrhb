@@ -2474,41 +2474,39 @@ main{background:transparent!important;}
             // Keep the item visible so the customer can see "Out of Schedule".
             return true;
         }
-
         async function fetchMenu() {
             console.log("Fetching menu from WAMP/MySQL...");
 
-            // Keep Index (5)'s proven menu-loading path: the menu itself is loaded
-            // directly from the Customer API /menu endpoint. This avoids routing
-            // the large menu through the generic /api/data query layer.
-            let data = [];
-            let error = null;
-            try {
-                const menuResult = await rmpWampFetch('/menu');
-                data = Array.isArray(menuResult?.data) ? menuResult.data : [];
-            } catch (e) {
-                error = { message: e?.message || String(e) };
-            }
-
-            // Keep Index (6)'s existing schedule functionality unchanged.
-            let scheduleResult = { data: [], error: null };
-            try {
-                scheduleResult = await cloudDB.from('menu_schedules').select('*');
-            } catch (e) {
-                scheduleResult = { data: [], error: { message: e?.message || String(e) } };
-            }
-            const allMenuSchedules = scheduleResult?.error ? [] : (scheduleResult?.data || []);
-            if (scheduleResult?.error) console.warn('Menu schedule load skipped:', scheduleResult.error.message);
+            // Keep Index 5's menu-loading behavior:
+            // load the complete menu_items set and only exclude items whose
+            // is_available value is explicitly false/0. Do NOT use the
+            // Index 6 @# marker filter because it can hide valid menu items.
+            const { data, error } = await cloudDB.from('menu_items').select('*');
 
             if (error) {
-                console.error('WAMP/MySQL Menu Fetch Error:', error);
+                console.error('WAMP/MySQL Fetch Error Details:', error);
                 alert('Menu load failed! Error: ' + error.message);
                 return;
             }
 
             console.log('Fetched Menu Data:', data);
+
+            // Preserve Index 6's Out-of-Schedule feature without using it to
+            // remove menu items from the loaded list.
+            let allMenuSchedules = [];
+            try {
+                const scheduleResult = await cloudDB.from('menu_schedules').select('*');
+                if (!scheduleResult?.error) {
+                    allMenuSchedules = scheduleResult?.data || [];
+                } else {
+                    console.warn('Menu schedule load skipped:', scheduleResult.error.message);
+                }
+            } catch (scheduleError) {
+                console.warn('Menu schedule load skipped:', scheduleError);
+            }
+
             menuItems = (data || [])
-                .filter(item => menuItemIsAvailable(item) && !menuItemHasUnavailableMarker(item))
+                .filter(item => item.is_available !== false && item.is_available !== 0 && String(item.is_available).toLowerCase() !== 'false')
                 .map(item => ({
                     ...item,
                     _out_of_schedule: isMenuItemOutOfSchedule(item, allMenuSchedules),
@@ -2520,8 +2518,11 @@ main{background:transparent!important;}
                     (Number(a.item_sort_order)||999999)-(Number(b.item_sort_order)||999999) ||
                     getOriginalItemName(a).localeCompare(getOriginalItemName(b), undefined, { numeric: true, sensitivity: 'base' })
                 );
+
             renderCategories();
 
+            // Top 15 is calculated automatically from real sales in orders/order_items.
+            // It does not depend on menu_items.is_popular.
             await loadTopSellingItems();
 
             if (currentLang !== 'en') {
