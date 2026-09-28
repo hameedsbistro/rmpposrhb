@@ -2475,24 +2475,36 @@ main{background:transparent!important;}
             return true;
         }
 
-        async function fetchMenu() {
+        aasync function fetchMenu() {
             console.log("Fetching menu from WAMP/MySQL...");
-            const [{ data, error }, scheduleResult] = await Promise.all([
-                cloudDB.from('menu_items').select('*'),
+            
+            let menuData = null;
+            let menuError = null;
+            
+            try {
+                // ইনডেক্স ৫ এর মত সরাসরি /menu API কল করে সম্পূর্ণ ডাটাবেস লিস্ট ফেচ করা হচ্ছে 
+                const response = await rmpWampFetch('/menu');
+                menuData = response.data || [];
+            } catch (err) {
+                menuError = err;
+            }
+            
+            const [scheduleResult] = await Promise.all([
                 cloudDB.from('menu_schedules').select('*')
             ]);
+            
             const allMenuSchedules = scheduleResult?.error ? [] : (scheduleResult?.data || []);
             if (scheduleResult?.error) console.warn('Menu schedule load skipped:', scheduleResult.error.message);
 
-            if (error) {
-                console.error('WAMP/MySQL Menu Fetch Error:', error);
-                alert('Menu load failed! Error: ' + error.message);
+            if (menuError) {
+                console.error('WAMP/MySQL Menu Fetch Error:', menuError);
+                alert('Menu load failed! Error: ' + menuError.message);
                 return;
             }
 
-            console.log('Fetched Menu Data:', data);
+            console.log('Fetched Menu Data:', menuData);
             const nowMin=malaysiaClockMinutes();
-            menuItems = (data || [])
+            menuItems = (menuData || [])
                 .filter(item => menuItemIsAvailable(item) && !menuItemHasUnavailableMarker(item))
                 .map(item => ({
                     ...item,
