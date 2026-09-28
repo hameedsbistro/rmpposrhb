@@ -6216,38 +6216,10 @@ function scheduleGroupVisibleForItem(item, groups, categoryTags, itemTags, group
 }
     // Final menu loader: manual availability -> direct item/category schedule -> named schedule tags/default.
 fetchMenu = async function() {
-  console.log("Fetching menu with named scheduling and pagination...");
-
-  // ১. Supabase এর 500 লিমিট বাইপাস করার জন্য লুপ চালিয়ে সব আইটেম নিয়ে আসা
-  let allMenuItems = [];
-  let start = 0;
-  const step = 500;
-  let hasMore = true;
-  let menuError = null;
-
-  while (hasMore) {
-    const { data, error } = await cloudDB.from('menu_items').select('*').range(start, start + step - 1);
-    if (error) {
-        menuError = error;
-        break;
-    }
-    if (data && data.length > 0) {
-        allMenuItems.push(...data);
-        start += step;
-        if (data.length < step) hasMore = false; // ডাটা শেষ হয়ে গেলে লুপ বন্ধ হবে
-    } else {
-        hasMore = false;
-    }
-  }
-
-  if (menuError) {
-    console.error('Database Fetch Error Details:', menuError);
-    alert('Menu load failed! Error: ' + menuError.message);
-    return;
-  }
-
-  // ২. বাকি শিডিউল টেবিলগুলো আগের মতই ফেচ করা
-  const [directResult, groupResult, catTagResult, itemTagResult, slotResult] = await Promise.all([
+  console.log("Fetching menu with named scheduling (Fallback without frontend limits)...");
+  
+  const [menuResult, directResult, groupResult, catTagResult, itemTagResult, slotResult] = await Promise.all([
+    cloudDB.from('menu_items').select('*'), // ফ্রন্টএন্ড লিমিট বা রেঞ্জ ছাড়া সাধারণ ফেচ
     cloudDB.from('menu_schedules').select('*').eq('enabled', true),
     cloudDB.from('menu_schedule_groups').select('*'),
     cloudDB.from('menu_schedule_category_tags').select('*'),
@@ -6255,7 +6227,13 @@ fetchMenu = async function() {
     cloudDB.from('menu_schedule_group_time_slots').select('*').order('slot_order', { ascending: true })
   ]);
 
-  await enforceMenuAvailabilityMarkers(allMenuItems, cloudDB);
+  if(menuResult.error){
+    console.error('WAMP/MySQL Fetch Error Details:', menuResult.error);
+    alert('Menu load failed! Error: ' + menuResult.error.message);
+    return;
+  }
+
+  await enforceMenuAvailabilityMarkers(menuResult.data || [], cloudDB);
 
   const directSchedules = directResult.error ? [] : (directResult.data || []);
   const groups = groupResult.error ? [] : (groupResult.data || []);
@@ -6263,13 +6241,7 @@ fetchMenu = async function() {
   const itemTags = itemTagResult.error ? [] : (itemTagResult.data || []);
   const groupSlots = slotResult.error ? [] : (slotResult.data || []);
 
-  if (directResult.error) console.warn('Direct menu schedule load skipped:', directResult.error.message);
-  if (groupResult.error) console.warn('Named schedule groups load skipped:', groupResult.error.message);
-  if (catTagResult.error) console.warn('Category schedule tags load skipped:', catTagResult.error.message);
-  if (itemTagResult.error) console.warn('Item schedule tags load skipped:', itemTagResult.error.message);
-  if (slotResult.error) console.warn('Schedule time windows load skipped:', slotResult.error.message);
-
-  menuItems = allMenuItems
+  menuItems = (menuResult.data || [])
     .filter(item => menuItemIsAvailable(item) && !menuItemHasUnavailableMarker(item))
     .map(item => {
       const own = directSchedules.find(r => String(r.scope_type || '').toLowerCase() === 'item' && String(r.menu_item_id) === String(item.id));
