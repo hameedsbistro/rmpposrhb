@@ -2477,40 +2477,17 @@ main{background:transparent!important;}
 
         async function fetchMenu() {
             console.log("Fetching menu from WAMP/MySQL...");
+            const { data, error } = await _wamp.from('menu_items').select('*');
             
-            let menuData = null;
-            let menuError = null;
-            
-            try {
-                // ইনডেক্স ৫ এর মত সরাসরি /menu API কল করে সম্পূর্ণ ডাটাবেস লিস্ট ফেচ করা হচ্ছে 
-                const response = await rmpWampFetch('/menu');
-                menuData = response.data || [];
-            } catch (err) {
-                menuError = err;
-            }
-            
-            const [scheduleResult] = await Promise.all([
-                cloudDB.from('menu_schedules').select('*')
-            ]);
-            
-            const allMenuSchedules = scheduleResult?.error ? [] : (scheduleResult?.data || []);
-            if (scheduleResult?.error) console.warn('Menu schedule load skipped:', scheduleResult.error.message);
-
-            if (menuError) {
-                console.error('WAMP/MySQL Menu Fetch Error:', menuError);
-                alert('Menu load failed! Error: ' + menuError.message);
+            if (error) {
+                console.error('WAMP/MySQL Fetch Error Details:', error);
+                alert('Menu load failed! Error: ' + error.message);
                 return;
             }
-
-            console.log('Fetched Menu Data:', menuData);
-            const nowMin=malaysiaClockMinutes();
-            menuItems = (menuData || [])
-                .filter(item => menuItemIsAvailable(item) && !menuItemHasUnavailableMarker(item))
-                .map(item => ({
-                    ...item,
-                    _out_of_schedule: isMenuItemOutOfSchedule(item, allMenuSchedules),
-                    _schedule_rule: getMenuScheduleRule(item, allMenuSchedules)
-                }))
+            
+            console.log('Fetched Menu Data:', data);
+            menuItems = (data || [])
+                .filter(item => item.is_available !== false)
                 .sort((a, b) =>
                     (Number(a.category_sort_order)||999999)-(Number(b.category_sort_order)||999999) ||
                     String(a.category || '').localeCompare(String(b.category || ''), undefined, { numeric: true, sensitivity: 'base' }) ||
@@ -2519,6 +2496,8 @@ main{background:transparent!important;}
                 );
             renderCategories();
 
+            // Top 15 is calculated automatically from real sales in orders/order_items.
+            // It does not depend on menu_items.is_popular.
             await loadTopSellingItems();
 
             if (currentLang !== 'en') {
