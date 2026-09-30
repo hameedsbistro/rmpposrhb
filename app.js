@@ -342,3 +342,40 @@ function v18SourcePair(item,field){const c=v18Candidates(item,field);let malay=c
 
 
 })();
+
+/* V28 targeted fix: make menu-grid item images reliably open the existing image viewer. */
+(function(){
+  'use strict';
+  var lastOpenAt=0, lastOpenKey='';
+  function openFromImage(img){
+    if(!img || !img.dataset || !img.dataset.photo || typeof window.openImage!=='function') return false;
+    var now=Date.now(), key=String(img.dataset.photo)+'|'+String(img.dataset.name||'')+'|'+String(img.dataset.original||'');
+    if(now-lastOpenAt<450 && key===lastOpenKey) return true;
+    lastOpenAt=now; lastOpenKey=key;
+    window.openImage(img.dataset.photo,img.dataset.name||'',img.dataset.original||'');
+    return true;
+  }
+  function bind(){
+    var grid=document.getElementById('menuGrid');
+    if(!grid || grid.dataset.imageGridFixV28==='1') return;
+    grid.dataset.imageGridFixV28='1';
+    grid.addEventListener('click',function(e){
+      var img=e.target && e.target.closest ? e.target.closest('img[data-photo]') : null;
+      if(!img || !grid.contains(img)) return;
+      e.preventDefault(); e.stopPropagation(); openFromImage(img);
+    },true);
+    grid.addEventListener('pointerup',function(e){
+      if(e.pointerType==='mouse') return;
+      var img=e.target && e.target.closest ? e.target.closest('img[data-photo]') : null;
+      if(!img || !grid.contains(img)) return;
+      e.preventDefault(); e.stopPropagation(); openFromImage(img);
+    },true);
+  }
+  function boot(){
+    bind();
+    var mo=new MutationObserver(bind);
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
