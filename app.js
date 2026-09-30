@@ -292,6 +292,8 @@ const v26WordMap={
 function v26DictionaryFallback(text,target){const map=v26WordMap[target];if(!map)return '';const raw=String(text||'').trim();if(!raw)return '';const tokens=raw.split(/(\s+|[\/,;()&+\-])/);let hits=0;const out=tokens.map(t=>{const key=t.toLowerCase();if(map[key]){hits++;return map[key]}return t});return hits?out.join('').trim():'';}
 function v26CacheGet(lang,text){try{return localStorage.getItem('hameeds_tr_v4_'+lang+'|'+text)||''}catch(e){return''}}
 function v26CacheSet(lang,text,value){try{localStorage.setItem('hameeds_tr_v4_'+lang+'|'+text,value)}catch(e){}}
+// Backward-compatible cache getter used by the V18 translation renderer.
+function v18CacheGet(lang,text){return v26CacheGet(lang,text)}
 async function v26TranslateOne(text,target,candidates){
   const original=String(text||'').trim(); if(!original)return '';
   const seen=new Set();
