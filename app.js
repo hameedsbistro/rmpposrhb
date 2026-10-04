@@ -239,8 +239,10 @@ function buildThermalReceiptPdfBytes(data,logo){
   const totalRow=(cy,label,val,size=9,bold=true)=>{text(10,cy,label,size,bold);const approx=String(val).length*size*.55;text(w-12-approx,cy,val,size,bold);return cy-size*1.55;};
   const wrap=(s,max)=>{const out=[];let t=String(s);if(!t)return [''];while(t.length>max){let cut=t.lastIndexOf(' ',max);if(cut<10)cut=max;out.push(t.slice(0,cut));t=t.slice(cut).trimStart();}out.push(t);return out;};
   const itemRows=[];
+  const menuNameById=new Map((Array.isArray(state?.menu)?state.menu:[]).map(m=>[String(m.id),String(m.name_en||m.name||m.item_name||'').trim()]));
   for(const i of items){
-    const name=String(i.resolved_item_name||i.name_en||i.item_name||i.menu_name||'Item'),qty=Number(i.quantity||0),line=money2(Number(i.price||0)*qty);
+    const menuFallback=menuNameById.get(String(i.menu_item_id||''))||'';
+    const name=String(i.resolved_item_name||i.name_en||i.item_name||i.menu_name||menuFallback||'Item').trim(),qty=Number(i.quantity||0),line=money2(Number(i.price||0)*qty);
     itemRows.push({name,qty,line});
     let mods=[];try{mods=Array.isArray(i.modifiers)?i.modifiers:(typeof i.modifiers==='string'?JSON.parse(i.modifiers||'[]'):[])}catch(_){mods=[];}
     for(const m of mods){const t=String(m?.text||m?.name||'').trim();if(t)itemRows.push({name:'↳ '+t,qty:null,line:null,mod:true});}
